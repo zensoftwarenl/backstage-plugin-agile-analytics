@@ -3,16 +3,30 @@ import { encodeApiKey } from '../helpers';
 import {
   ApiConstructorOptions,
   DeploymentFreqResponse,
+  EmojiDataResponse,
+  ErrorBudgetChartDataOptions,
+  ErrorBudgetChartDataResponse,
+  KudosChartResponse,
   LeadTimeResponse,
   LeaksResponse,
   OrganisationDataOptions,
   OrganisationDataResponse,
+  OrgUsersDataResponse,
   ReposDataOptions,
   ReposDataResponse,
   RiskChartData,
   RiskChartResponse,
+  ServicesDataOptions,
+  ServicesDataResponse,
   SiDataOptions,
   SiDataResponse,
+  SingleServiceDataOptions,
+  SingleServiceDataResponse,
+  TeamKudosLeaderBoardOptions,
+  TeamKudosLeaderBoardResponse,
+  TeamsDataResponse,
+  UserPicOptions,
+  WorkspacesDataResponse,
 } from './types';
 
 export interface AgileAnalyticsAPI {
@@ -28,6 +42,24 @@ export interface AgileAnalyticsAPI {
   getStockData(options: SiDataOptions): Promise<any>;
   getRiskChartData(options: SiDataOptions): Promise<RiskChartResponse>;
   getLeaksData(options: SiDataOptions): Promise<LeaksResponse>;
+  getServicesData(options: ServicesDataOptions): Promise<ServicesDataResponse>;
+  getSingleServiceData(
+    options: SingleServiceDataOptions,
+  ): Promise<SingleServiceDataResponse>;
+  getErrorBudgetChartData(
+    options: ErrorBudgetChartDataOptions,
+  ): Promise<ErrorBudgetChartDataResponse>;
+  getTeamsData(options: ReposDataOptions): Promise<TeamsDataResponse>;
+  getWorkspacesData(options: ReposDataOptions): Promise<WorkspacesDataResponse>;
+  getOrgUsersData(options: ReposDataOptions): Promise<OrgUsersDataResponse>;
+  getUserPic(options: UserPicOptions): Promise<Blob>;
+  getEmoji(options: ReposDataOptions): Promise<EmojiDataResponse>;
+  getTeamKudosLeaderBoard(
+    options: TeamKudosLeaderBoardOptions,
+  ): Promise<TeamKudosLeaderBoardResponse>;
+  getTeamKudosSankeyData(
+    options: TeamKudosLeaderBoardOptions,
+  ): Promise<any>;
 }
 
 export const agileAnalyticsApiRef = createApiRef<AgileAnalyticsAPI>({
@@ -347,6 +379,204 @@ export class AgileAnalyticsAPIClient implements AgileAnalyticsAPI {
   async getLeaksData(options: SiDataOptions): Promise<LeaksResponse> {
     const response = await fetch(
       `${this.proxyPath}/${options.orgHash}/security/leaks/?date_start=${options.dateStart}&date_end=${options.dateEnd}`,
+      generateRequestParams(options.apiKey),
+    );
+    if (!response.ok) {
+      throw new Error(
+        `There was a problem fetching analytics data: ${await generateErrorMessage(
+          response,
+        )}`,
+      );
+    }
+
+    const state = await response.json();
+
+    return state;
+  }
+
+  async getServicesData(
+    options: ServicesDataOptions,
+  ): Promise<ServicesDataResponse> {
+    const response = await fetch(
+      `${this.proxyPath}/${options.orgHash}/slo/services/`,
+      generateRequestParams(options.apiKey),
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        `There was a problem fetching analytics data: ${await generateErrorMessage(
+          response,
+        )}`,
+      );
+    }
+
+    const state = await response.json();
+
+    return state;
+  }
+
+  async getSingleServiceData(
+    options: SingleServiceDataOptions,
+  ): Promise<SingleServiceDataResponse> {
+    const response = await fetch(
+      `${this.proxyPath}/${options.orgHash}/slo/${options.serviceName}/`,
+      generateRequestParams(options.apiKey),
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        `There was a problem fetching analytics data: ${await generateErrorMessage(
+          response,
+        )}`,
+      );
+    }
+
+    const state = await response.json();
+
+    return state;
+  }
+
+  async getErrorBudgetChartData(
+    options: ErrorBudgetChartDataOptions,
+  ): Promise<ErrorBudgetChartDataResponse> {
+    const response = await fetch(
+      `${this.proxyPath}/${options.orgHash}/slo/${options.serviceName}/${options.feature}/?date_start=${options.date_start}&date_end=${options.date_end}&step_size=${options.step_size}`,
+      generateRequestParams(options.apiKey),
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        `There was a problem fetching analytics data: ${await generateErrorMessage(
+          response,
+        )}`,
+      );
+    }
+
+    const state = await response.json();
+
+    return state;
+  }
+
+  async getTeamsData(options: ReposDataOptions): Promise<TeamsDataResponse> {
+    const response = await fetch(
+      `${this.proxyPath}/${options.orgHash}/teams/`,
+      generateRequestParams(options.apiKey),
+    );
+    if (!response.ok) {
+      throw new Error(
+        `There was a problem fetching analytics data: ${await generateErrorMessage(
+          response,
+        )}`,
+      );
+    }
+
+    const state = await response.json();
+
+    return state;
+  }
+
+  async getWorkspacesData(
+    options: ReposDataOptions,
+  ): Promise<WorkspacesDataResponse> {
+    const response = await fetch(
+      `${this.proxyPath}/${options.orgHash}/bot/workspaces/`,
+      generateRequestParams(options.apiKey),
+    );
+    if (!response.ok) {
+      throw new Error(
+        `There was a problem fetching analytics data: ${await generateErrorMessage(
+          response,
+        )}`,
+      );
+    }
+
+    const state = await response.json();
+
+    return state;
+  }
+
+  async getOrgUsersData(
+    options: ReposDataOptions,
+  ): Promise<OrgUsersDataResponse> {
+    const response = await fetch(
+      `${this.proxyPath}/${options.orgHash}/settings/users/`,
+      generateRequestParams(options.apiKey),
+    );
+    if (!response.ok) {
+      throw new Error(
+        `There was a problem fetching analytics data: ${await generateErrorMessage(
+          response,
+        )}`,
+      );
+    }
+
+    const state = await response.json();
+
+    return state;
+  }
+
+  async getUserPic(options: UserPicOptions): Promise<any> {
+    const response = await fetch(
+      `${this.proxyPath}/${options.url}`,
+      generateRequestParams(options.apiKey),
+    );
+    if (!response.ok) {
+      throw new Error(
+        `There was a problem fetching analytics data: ${await generateErrorMessage(
+          response,
+        )}`,
+      );
+    }
+
+    const buffer = await response.arrayBuffer();
+    const base64 = Buffer.from(buffer).toString('base64');
+    const contentType = response.headers.get('content-type') || 'image/png';
+    return `data:${contentType};base64,${base64}`;
+  }
+
+  async getEmoji(options: ReposDataOptions): Promise<EmojiDataResponse> {
+    const response = await fetch(
+      `${this.proxyPath}/${options.orgHash}/settings/emojis/`,
+      generateRequestParams(options.apiKey),
+    );
+    if (!response.ok) {
+      throw new Error(
+        `There was a problem fetching analytics data: ${await generateErrorMessage(
+          response,
+        )}`,
+      );
+    }
+
+    const state = await response.json();
+
+    return state;
+  }
+
+  async getTeamKudosLeaderBoard(
+    options: TeamKudosLeaderBoardOptions,
+  ): Promise<TeamKudosLeaderBoardResponse> {
+    const response = await fetch(
+      `${this.proxyPath}/${options.orgHash}/teams/${options.team}/leader_board/?date_start=${options.date_start}&date_end=${options.date_end}`,
+      generateRequestParams(options.apiKey),
+    );
+    if (!response.ok) {
+      throw new Error(
+        `There was a problem fetching analytics data: ${await generateErrorMessage(
+          response,
+        )}`,
+      );
+    }
+
+    const state = await response.json();
+
+    return state;
+  }
+
+  async getTeamKudosSankeyData(
+    options: TeamKudosLeaderBoardOptions,
+  ): Promise<KudosChartResponse> {
+    const response = await fetch(
+      `${this.proxyPath}/${options.orgHash}/teams/${options.team}/sankey_diagram/?date_start=${options.date_start}&date_end=${options.date_end}`,
       generateRequestParams(options.apiKey),
     );
     if (!response.ok) {

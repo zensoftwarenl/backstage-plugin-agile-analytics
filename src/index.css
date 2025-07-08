@@ -1,0 +1,155 @@
+.deployment-plotline-tooltip {
+  overflow: visible;
+  position: relative;
+  padding: 8px;
+  width: 16px;
+  height: 16px;
+  border-radius: 1000%;
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid gray;
+  color: gray;
+  font-size: 10px;
+}
+
+.deployment-plotline-tooltip:hover {
+  border-color: #000000de;
+  color: #000000de;
+}
+
+.basic-transition {
+  transform: translateZ(0); /* triggers GPU acceleration, optional but common */
+  transition-property: all;
+  transition-duration: 200ms;
+  transition-timing-function: ease-in;
+}
+.highcharts-plot-line-label,
+.highcharts-root,
+.highcharts-container {
+  overflow: visible !important;
+  overflow-x: visible !important;
+  overflow-y: visible !important;
+}
+
+.highcharts-plot-line-label .label-tooltip-container .label-tooltip {
+  width: 280px;
+  overflow: hidden;
+  border: 0px solid #cccccc;
+  box-sizing: border-box;
+  transform: translate(0, 100%);
+}
+
+.highcharts-plot-line-label:hover .label-tooltip-container .label-tooltip {
+  width: 280px;
+  border: 1px solid #cccccc;
+  box-sizing: border-box;
+  transform: translate(0, 0);
+}
+
+.highcharts-plot-line-label .label-tooltip-container {
+  width: 0;
+}
+
+.highcharts-plot-line-label:hover .label-tooltip-container {
+  width: 280px;
+}
+
+.label-tooltip-container {
+  position: absolute;
+  top: -76px;
+  overflow: hidden;
+  z-index: -50;
+}
+
+.label-tooltip-container-left {
+  left: -8px;
+}
+.label-tooltip-container-right {
+  right: -8px;
+}
+
+.label-tooltip {
+  background-color: white;
+  cursor: default;
+  color: #000000de;
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  font-size: 12px;
+  height: 74px;
+  overflow: hidden;
+}
+
+.label-tooltip-text-first {
+  padding-top: 4px;
+}
+
+.label-tooltip-text {
+  background-color: white;
+  flex-shrink: 0;
+  height: 16px;
+  margin: 0;
+  padding: 0px 4px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  white-space: normal;
+  background-color: transparent;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.text-green {
+  color: rgb(142, 195, 88);
+}
+
+.text-red {
+  color: rgb(192, 58, 58);
+}
+
+.full-height {
+  height: 100%;
+}
+
+.rank {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+  margin-right: 14px;
+}
+
+.rank-1 {
+  color: #95c762;
+}
+
+.rank-2 {
+  color: #75a742;
+}
+.rank-3 {
+  color: rgb(192, 58, 58);
+}
+
+.userpic-kudos {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.gap-12 {
+  gap: 12px
+}
+.gap-8 {
+  gap: 8px
+}
+.gap-32 {
+  gap: 32px
+}
+
+.content-container {
+  overflow-x: hidden;
+}

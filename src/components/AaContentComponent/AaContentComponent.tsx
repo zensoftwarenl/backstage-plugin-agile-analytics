@@ -1,20 +1,22 @@
 /* eslint-disable no-console */
-import React, { useState } from "react";
-import { Grid, Link } from "@material-ui/core";
+import React, { useState } from 'react';
+import { Grid } from '@material-ui/core';
 import {
   Content,
   InfoCard,
   StructuredMetadataTable,
   Tabs,
-} from "@backstage/core-components";
-import { OrganisationDataResponse } from "../../api/types";
-import { AaTimeSelect } from "../AaTimeSelect";
-import { getEndDate, getStartDate } from "../../helpers";
-import { AaDoraPage } from "../AaDoraPage";
-import { AaSprintInsightsPage } from "../AaSprintInsightsPage";
-import { AaStockPage } from "../AaStockPage";
-import { AaLeaksPage } from "../AaLeaksPage";
-import { Alert } from "@material-ui/lab";
+} from '@backstage/core-components';
+import { OrganisationDataResponse } from '../../api/types';
+import { AaTimeSelect } from '../AaTimeSelect';
+import { getEndDate, getStartDate } from '../../helpers';
+import { AaDoraPage } from '../AaDoraPage';
+import { AaSprintInsightsPage } from '../AaSprintInsightsPage';
+import { AaStockPage } from '../AaStockPage';
+import { AaLeaksPage } from '../AaLeaksPage';
+import { AaSlosPage } from '../AaSlosPage';
+import { AaErrorBudgetsPage } from '../AaErrorBudgetsPage';
+import { AaKudosPage } from '../AaKudosPage';
 
 export const AaContentComponent = ({
   orgData,
@@ -22,16 +24,16 @@ export const AaContentComponent = ({
   orgData: OrganisationDataResponse;
 }) => {
   const [timeperiod, setTimeperiod] = useState({
-    date_start: getStartDate(6, "days"),
+    date_start: getStartDate(6, 'days'),
     date_end: getEndDate(),
-    label: "Last 7 days",
-    value: "7days",
+    label: 'Last 7 days',
+    value: '7days',
   });
 
   const overviewMetadata = {
-    "Organisation hash": orgData.orgHash,
-    "Organisation name": orgData.orgName,
-    "Number of users": orgData.usersNumber,
+    'Organisation hash': orgData.orgHash,
+    'Organisation name': orgData.orgName,
+    'Number of users': orgData.usersNumber,
     Status: orgData.status,
     Subscription: orgData.subscription,
   };
@@ -39,7 +41,7 @@ export const AaContentComponent = ({
   const cardContentStyle = { heightX: 200, width: 600 };
   const tabs = [
     {
-      label: "OVERVIEW",
+      label: 'OVERVIEW',
       content: (
         <Grid container spacing={3} direction="column" style={cardContentStyle}>
           <Grid item>
@@ -51,84 +53,87 @@ export const AaContentComponent = ({
       ),
     },
     {
-      label: "SPRINT INSIGHTS",
+      label: 'SPRINT INSIGHTS',
       content: (
         <Grid container spacing={3} direction="column">
           <Grid item>
-            {orgData?.subscription === "enterprise-plus" ? (
-              <AaSprintInsightsPage timeperiod={timeperiod} />
-            ) : (
-              renderUpgradeWarning()
-            )}
+            <AaSprintInsightsPage timeperiod={timeperiod} />
           </Grid>
         </Grid>
       ),
     },
     {
-      label: "DORA",
+      label: 'SLOS',
       content: (
         <Grid container spacing={3} direction="column">
           <Grid item>
-            {orgData?.subscription === "enterprise-plus" ? (
-              <AaDoraPage timeperiod={timeperiod} />
-            ) : (
-              renderUpgradeWarning()
-            )}
+            <AaSlosPage timeperiod={timeperiod} />
           </Grid>
         </Grid>
       ),
     },
     {
-      label: "STOCK",
+      label: 'ERROR BUDGETS',
       content: (
         <Grid container spacing={3} direction="column">
           <Grid item>
-            {orgData?.subscription === "enterprise-plus" ? (
-              <AaStockPage timeperiod={timeperiod} />
-            ) : (
-              renderUpgradeWarning()
-            )}
+            <AaErrorBudgetsPage timeperiod={timeperiod} />
           </Grid>
         </Grid>
       ),
     },
     {
-      label: "LEAKS",
+      label: 'DORA',
       content: (
         <Grid container spacing={3} direction="column">
           <Grid item>
-            {orgData?.subscription === "enterprise-plus" ? (
-              <AaLeaksPage timeperiod={timeperiod} />
-            ) : (
-              renderUpgradeWarning()
-            )}
+            <AaDoraPage timeperiod={timeperiod} />
+          </Grid>
+        </Grid>
+      ),
+    },
+    {
+      label: 'KUDOS',
+      content: (
+        <Grid container spacing={3} direction="column">
+          <Grid item>
+            <AaKudosPage timeperiod={timeperiod} />
+          </Grid>
+        </Grid>
+      ),
+    },
+    {
+      label: 'STOCK',
+      content: (
+        <Grid container spacing={3} direction="column">
+          <Grid item>
+            <AaStockPage timeperiod={timeperiod} />
+          </Grid>
+        </Grid>
+      ),
+    },
+    {
+      label: 'LEAKS',
+      content: (
+        <Grid container spacing={3} direction="column">
+          <Grid item>
+            <AaLeaksPage timeperiod={timeperiod} />
           </Grid>
         </Grid>
       ),
     },
   ];
 
-  function renderUpgradeWarning() {
-    return (
-      <Alert severity="warning">
-        Agile Analytics Backstage.io integration is available only for
-        Enterprise+ organizations. Please{" "}
-        <Link
-          href="https://www.prod.agileanalytics.cloud/settings/organisation"
-          underline="always"
-          color="inherit"
-        >
-          upgrade your plan
-        </Link>
-      </Alert>
-    );
-  }
-
   return (
-    <Content>
+    <Content className='content-container'>
       <Grid container spacing={3} direction="column">
         <Grid item>
-          <AaTimeSelect timeperiod={timeperiod} setTimeperiod={setTimeperiod} />
+          <Grid item>
+            <AaTimeSelect
+              timeperiod={timeperiod}
+              setTimeperiod={setTimeperiod}
+            />
+          </Grid>
         </Grid>
         <Grid item>
           <Tabs tabs={tabs} />

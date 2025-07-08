@@ -1,0 +1,1 @@
+export { AaKudosChart } from './AaKudosChart';

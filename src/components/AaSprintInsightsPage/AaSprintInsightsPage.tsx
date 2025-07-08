@@ -1,13 +1,13 @@
 /* eslint-disable no-console */
-import React from "react";
-import { GaugeCard, InfoCard, Progress } from "@backstage/core-components";
-import { configApiRef, useApi } from "@backstage/core-plugin-api";
-import useAsync from "react-use/lib/useAsync";
-import Alert from "@material-ui/lab/Alert";
-import { Grid } from "@material-ui/core";
-import { Timeperiod } from "../../api/types";
-import { agileAnalyticsApiRef } from "../../api";
-import { AaSprintInsightsTable } from "../AaSprintInsightsTable";
+import React from 'react';
+import { GaugeCard, InfoCard, Progress } from '@backstage/core-components';
+import { configApiRef, useApi } from '@backstage/core-plugin-api';
+import useAsync from 'react-use/lib/useAsync';
+import Alert from '@material-ui/lab/Alert';
+import { Grid } from '@material-ui/core';
+import { Timeperiod } from '../../api/types';
+import { agileAnalyticsApiRef } from '../../api';
+import { AaSprintInsightsTable } from '../AaSprintInsightsTable';
 
 export const AaSprintInsightsPage = ({
   timeperiod,
@@ -16,8 +16,8 @@ export const AaSprintInsightsPage = ({
 }) => {
   const api = useApi(agileAnalyticsApiRef);
   const config = useApi(configApiRef);
-  const orgHash = config.getString("agileAnalytics.orgHash");
-  const apiKey = config.getString("agileAnalytics.apiKey");
+  const orgHash = config.getString('agileAnalytics.orgHash');
+  const apiKey = config.getString('agileAnalytics.apiKey');
 
   const siState = useAsync(async (): Promise<any> => {
     const response = await api.getSiData({

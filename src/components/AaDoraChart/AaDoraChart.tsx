@@ -6,6 +6,7 @@ import { DoraChart, DoraSeries, Option, Timeperiod } from '../../api/types';
 import { Progress, Select } from '@backstage/core-components';
 import InfoRounded from '@material-ui/icons/InfoRounded';
 
+
 export const AaDoraChart = ({
   timeperiod,
   charts,
@@ -17,7 +18,6 @@ export const AaDoraChart = ({
   yAxisFormatter,
   chartHeight,
   loading = false,
-  className = '',
   yAxisTitle,
   customOpacity,
   isMarker = true,
@@ -43,7 +43,6 @@ export const AaDoraChart = ({
   setUpdate?: React.Dispatch<React.SetStateAction<number>> | null;
   update?: number;
 }) => {
-  // console.log('charts 1', charts[1]?.series[0].data[0]);
   const { date_end, date_start } = timeperiod;
   const [yAxisCustomLabels, setYAxisCustomLabels] = useState<{
     formatter?: any;
@@ -61,7 +60,6 @@ export const AaDoraChart = ({
     headerFormat: '<span style="font-size:12px"><b>{point.key}</b></span><br>',
   }); // shared: false -> tooltip will be hidden on mouseout; currently to have shared:false, providing customPointFormatter is required (otherwise it`ll be changed to true (line 69))
   const [selectedChart, setSelectedChart] = useState<any>(null);
-  // console.log('selectedChart', selectedChart);
   const [infoHoverStatus, setInfoHoverStatus] = useState<boolean>(false);
 
   useEffect(() => {
@@ -166,7 +164,6 @@ export const AaDoraChart = ({
             },
           },
         },
-        zIndex: -10,
         lineWidth: 1,
       },
       scatter: {

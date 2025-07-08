@@ -3,6 +3,7 @@ import React from 'react';
 import { Select } from '@backstage/core-components';
 import { Timeperiod } from '../../api/types';
 import { getEndDate, getStartDate } from '../../helpers';
+import { Box } from '@material-ui/core';
 
 export const AaTimeSelect = ({
   timeperiod,
@@ -46,11 +47,15 @@ export const AaTimeSelect = ({
   }
 
   return (
-    <Select
-      label="Timeperiod"
-      items={timeSelect}
-      selected="7days"
-      onChange={e => handleTimeperiodChange(e.toString())}
-    />
+    <Box sx={{ display: 'flex' }}>
+      <Box sx={{ minWidth: '260px', marginRight: '24px' }}>
+        <Select
+          label="Timeperiod"
+          items={timeSelect}
+          selected="7days"
+          onChange={e => handleTimeperiodChange(e.toString())}
+        />
+      </Box>
+    </Box>
   );
 };
