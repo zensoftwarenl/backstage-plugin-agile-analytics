@@ -1,26 +1,26 @@
 /* eslint-disable no-console */
-import React, { useState, useEffect, useCallback } from "react";
-import { InfoCard, Progress } from "@backstage/core-components";
+import React, { useState, useEffect, useCallback } from 'react';
+import { InfoCard, Progress } from '@backstage/core-components';
 import {
   Deployment,
   DeploymentFreqResponse,
   FilterRepo,
   Repo,
   Timeperiod,
-} from "../../api/types";
-import { Chip, Grid } from "@material-ui/core";
-import { configApiRef, useApi } from "@backstage/core-plugin-api";
-import { agileAnalyticsApiRef } from "../../api";
-import useAsync from "react-use/lib/useAsync";
-import Alert from "@material-ui/lab/Alert";
-import { AaDoraChart } from "../AaDoraChart";
-import moment from "moment";
+} from '../../api/types';
+import { Chip, Grid } from '@material-ui/core';
+import { configApiRef, useApi } from '@backstage/core-plugin-api';
+import { agileAnalyticsApiRef } from '../../api';
+import useAsync from 'react-use/lib/useAsync';
+import Alert from '@material-ui/lab/Alert';
+import { AaDoraChart } from '../AaDoraChart';
+import moment from 'moment';
 
 export const AaDoraPage = ({ timeperiod }: { timeperiod: Timeperiod }) => {
   const api = useApi(agileAnalyticsApiRef);
   const config = useApi(configApiRef);
-  const orgHash = config.getString("agileAnalytics.orgHash");
-  const apiKey = config.getString("agileAnalytics.apiKey");
+  const orgHash = config.getString('agileAnalytics.orgHash');
+  const apiKey = config.getString('agileAnalytics.apiKey');
 
   // =======FILTER  SETUP========
   const reposState = useAsync(async (): Promise<any> => {
@@ -32,7 +32,7 @@ export const AaDoraPage = ({ timeperiod }: { timeperiod: Timeperiod }) => {
   }, []);
 
   const [repositoriesFilter, setRepositoriesFilter] = useState<FilterRepo[]>(
-    []
+    [],
   );
   const [update, setUpdate] = useState<number>(0);
 
@@ -42,7 +42,7 @@ export const AaDoraPage = ({ timeperiod }: { timeperiod: Timeperiod }) => {
       const formatted = reposState?.value
         .reduce((acc: FilterRepo[], item: Repo) => {
           const group = item.provider_id;
-          const options = item.repositories.map((repository) => {
+          const options = item.repositories.map(repository => {
             return {
               ...repository,
               group: group,
@@ -66,12 +66,12 @@ export const AaDoraPage = ({ timeperiod }: { timeperiod: Timeperiod }) => {
 
   useEffect(() => {
     if (timeperiod.date_start && timeperiod.date_end) {
-      const timestampsByDays: any[] = [];
+      const timestampsByDays = [];
       let dayStartTimestamp = timeperiod.date_start * 1000;
       let dayEndTimestamp = +moment(dayStartTimestamp)
-        .add(1, "days")
-        .subtract(1, "seconds")
-        .format("x");
+        .add(1, 'days')
+        .subtract(1, 'seconds')
+        .format('x');
 
       while (dayEndTimestamp < timeperiod.date_end * 1000) {
         timestampsByDays.push({
@@ -79,9 +79,9 @@ export const AaDoraPage = ({ timeperiod }: { timeperiod: Timeperiod }) => {
           end: dayEndTimestamp,
         });
         dayStartTimestamp = +moment(dayStartTimestamp)
-          .add(1, "days")
-          .format("x");
-        dayEndTimestamp = +moment(dayEndTimestamp).add(1, "days").format("x");
+          .add(1, 'days')
+          .format('x');
+        dayEndTimestamp = +moment(dayEndTimestamp).add(1, 'days').format('x');
       }
 
       timestampsByDays.push({
@@ -123,20 +123,20 @@ export const AaDoraPage = ({ timeperiod }: { timeperiod: Timeperiod }) => {
   const chartsDeploymentFreq = [
     {
       title: {
-        label: "Deployment frequency",
-        value: "deployment-frequency",
+        label: 'Deployment frequency',
+        value: 'deployment-frequency',
       },
-      averageMeasure: "p/day",
+      averageMeasure: 'p/day',
       averageValue: averageDeploymentFreq,
       series: [
         {
-          name: "Successful deployments",
+          name: 'Successful deployments',
           data: formattedDeploymentFreqSuccessData
             ? formattedDeploymentFreqSuccessData
             : [],
         },
         {
-          name: "Failed deployments",
+          name: 'Failed deployments',
           data: formattedDeploymentFreqFailedData
             ? formattedDeploymentFreqFailedData
             : [],
@@ -146,19 +146,19 @@ export const AaDoraPage = ({ timeperiod }: { timeperiod: Timeperiod }) => {
   ];
 
   const filterDeploymentFreq = useCallback(
-    (data) => {
+    data => {
       const filteredData = data.filter((deployment: Deployment) => {
         return repositoriesFilter.find(
-          (repo) =>
+          repo =>
             repo.isSelected &&
             repo.url.includes(
-              deployment?.repository?.replace("git@gitlab.com:", "")
-            )
+              deployment?.repository?.replace('git@gitlab.com:', ''),
+            ),
         );
       });
       return filteredData;
     },
-    [repositoriesFilter]
+    [repositoriesFilter],
   );
 
   useEffect(() => {
@@ -171,17 +171,17 @@ export const AaDoraPage = ({ timeperiod }: { timeperiod: Timeperiod }) => {
   }, [deploymentFreqState, filterDeploymentFreq]);
 
   const formatDeploymentFreq = useCallback(
-    (status = "success") => {
+    (status = 'success') => {
       return timeperiodByDays.reduce((acc: number[][], day, i) => {
         let deployments = filteredDeploymentFreqData.filter(
           (deployment: Deployment) =>
             deployment.timestamp * 1000 >= day.start &&
-            deployment.timestamp * 1000 <= day.end
+            deployment.timestamp * 1000 <= day.end,
         );
 
         if (status) {
           deployments = deployments.filter(
-            (deployment: Deployment) => deployment.status === status
+            (deployment: Deployment) => deployment.status === status,
           );
         }
 
@@ -195,13 +195,13 @@ export const AaDoraPage = ({ timeperiod }: { timeperiod: Timeperiod }) => {
         return [...acc, [day.start, deployments.length]];
       }, []);
     },
-    [filteredDeploymentFreqData, timeperiodByDays]
+    [filteredDeploymentFreqData, timeperiodByDays],
   );
 
   useEffect(() => {
     if (filteredDeploymentFreqData?.length) {
-      setFormattedDeploymentFreqSuccessData(formatDeploymentFreq("success"));
-      setFormattedDeploymentFreqFailedData(formatDeploymentFreq("failed"));
+      setFormattedDeploymentFreqSuccessData(formatDeploymentFreq('success'));
+      setFormattedDeploymentFreqFailedData(formatDeploymentFreq('failed'));
       setFormattedDeploymentFreqData(formatDeploymentFreq());
     } else {
       setFormattedDeploymentFreqSuccessData([]);
@@ -215,7 +215,7 @@ export const AaDoraPage = ({ timeperiod }: { timeperiod: Timeperiod }) => {
       const totalDeployments = formattedDeploymentFreqData.reduce(
         (acc: number, item: number[], i: number) =>
           formattedDeploymentFreqData.length - 1 !== i ? acc + item[1] : acc,
-        0
+        0,
       );
       const avgDeployments = (
         totalDeployments / timeperiodByDays.length
@@ -233,7 +233,7 @@ export const AaDoraPage = ({ timeperiod }: { timeperiod: Timeperiod }) => {
           return { ...filterRepo, isSelected: !filterRepo.isSelected };
         }
         return filterRepo;
-      }
+      },
     );
     setRepositoriesFilter(updatedRepos);
   }
@@ -278,23 +278,23 @@ export const AaDoraPage = ({ timeperiod }: { timeperiod: Timeperiod }) => {
   const chartsLeadTime = [
     {
       title: {
-        value: "cycle-time",
-        label: "Cycle Time",
+        value: 'cycle-time',
+        label: 'Cycle Time',
       },
       description:
-        "Measures the time difference between the starting time of implementing a requirement and when the changes are delivered to production.",
-      averageMeasure: "",
+        'Measures the time difference between the starting time of implementing a requirement and when the changes are delivered to production.',
+      averageMeasure: '',
       averageValue: averageCycleTime?.cycleTime,
       series: [
         {
-          name: "Deployments Cycle Time",
-          type: "scatter",
+          name: 'Deployments Cycle Time',
+          type: 'scatter',
           data: formattedCycleTimeData?.length ? formattedCycleTimeData : [],
         },
 
         {
-          name: "Average",
-          type: "line",
+          name: 'Average',
+          type: 'line',
           data: averageCycleTimeChartData?.length
             ? averageCycleTimeChartData
             : [],
@@ -303,48 +303,48 @@ export const AaDoraPage = ({ timeperiod }: { timeperiod: Timeperiod }) => {
     },
     {
       title: {
-        value: "lead-time",
-        label: "Lead Time",
+        value: 'lead-time',
+        label: 'Lead Time',
       },
       description:
-        "Measures the time difference between the time a requirement is created and when the changes are delivered to production.",
-      averageMeasure: "",
+        'Measures the time difference between the time a requirement is created and when the changes are delivered to production.',
+      averageMeasure: '',
       averageValue: averageCycleTime?.leadTime,
       series: [
         {
-          name: "Deployments Lead Time",
-          type: "scatter",
+          name: 'Deployments Lead Time',
+          type: 'scatter',
           data: formattedLeadTimeData.length ? formattedLeadTimeData : [],
         },
 
         {
-          name: "Average",
-          type: "line",
+          name: 'Average',
+          type: 'line',
           data: averageLeadTimeChartData.length ? averageLeadTimeChartData : [],
         },
       ],
     },
     {
       title: {
-        value: "lead-time-for-change",
-        label: "Lead Time for Changes",
+        value: 'lead-time-for-change',
+        label: 'Lead Time for Changes',
       },
       description:
-        "Measures the amount of time it takes a commit to get into production.",
-      averageMeasure: "",
+        'Measures the amount of time it takes a commit to get into production.',
+      averageMeasure: '',
       averageValue: averageCycleTime?.leadTimeForChange,
       series: [
         {
-          name: "Deployments Lead Time For Changes",
-          type: "scatter",
+          name: 'Deployments Lead Time For Changes',
+          type: 'scatter',
           data: formattedLeadTimeForChangeData.length
             ? formattedLeadTimeForChangeData
             : [],
         },
 
         {
-          name: "Average",
-          type: "line",
+          name: 'Average',
+          type: 'line',
           data: averageLeadTimeForChangeChartData.length
             ? averageLeadTimeForChangeChartData
             : [],
@@ -366,22 +366,22 @@ export const AaDoraPage = ({ timeperiod }: { timeperiod: Timeperiod }) => {
   // FORMAT FILTERED  API RESPONSE
   const formatLeadTimeData = useCallback(
     (propertyKey: string) => {
-      return filteredLeadTimeData.map((deployment) => [
+      return filteredLeadTimeData.map(deployment => [
         deployment.timestamp * 1000,
         deployment[propertyKey] * 1000, // the value comes in seconds, convert to milliseconds
       ]);
     },
-    [filteredLeadTimeData]
+    [filteredLeadTimeData],
   );
 
   useEffect(() => {
     if (filteredLeadTimeData?.length) {
-      setFormattedLeadTimeData(formatLeadTimeData("lead_time"));
-      setFormattedCycleTimeData(formatLeadTimeData("cycle_time"));
+      setFormattedLeadTimeData(formatLeadTimeData('lead_time'));
+      setFormattedCycleTimeData(formatLeadTimeData('cycle_time'));
       setFormattedLeadTimeForChangeData(
-        formatLeadTimeData("lead_time_for_changes")
+        formatLeadTimeData('lead_time_for_changes'),
       );
-      setTicketKeys(filteredLeadTimeData.map((item) => item.key));
+      setTicketKeys(filteredLeadTimeData.map(item => item.key));
     } else {
       setFormattedLeadTimeData([]);
       setFormattedCycleTimeData([]);
@@ -392,17 +392,17 @@ export const AaDoraPage = ({ timeperiod }: { timeperiod: Timeperiod }) => {
 
   // SET AVERAGE
   const generateAverageChart = useCallback(
-    (formattedData) => {
+    formattedData => {
       return timeperiodByDays.reduce((acc: number[][], day, i) => {
         const dayDeployments = formattedData.filter(
           (deployment: number[]) =>
-            deployment[0] >= day.start && deployment[0] <= day.end
+            deployment[0] >= day.start && deployment[0] <= day.end,
         );
 
         const dayAverage = dayDeployments?.length
           ? dayDeployments.reduce(
               (accum: number, event: number[]) => accum + event[1],
-              0
+              0,
             ) / dayDeployments?.length
           : null;
 
@@ -422,12 +422,12 @@ export const AaDoraPage = ({ timeperiod }: { timeperiod: Timeperiod }) => {
         return [...acc, [day.end, dayAverage]];
       }, []);
     },
-    [timeperiodByDays]
+    [timeperiodByDays],
   );
 
   const formatChartAxisTime = useCallback((value: number) => {
     const valueDuration: ValueDuration = moment.duration(value);
-    let formattedValue = "0";
+    let formattedValue = '0';
 
     if (value !== 0) {
       if (valueDuration._data.months) {
@@ -481,17 +481,17 @@ export const AaDoraPage = ({ timeperiod }: { timeperiod: Timeperiod }) => {
 
     if (totalCycleTime) {
       avgCycleTime = formatChartAxisTime(
-        totalCycleTime / formattedCycleTimeData.length
+        totalCycleTime / formattedCycleTimeData.length,
       );
     }
     if (totalLeadTime) {
       avgLeadTime = formatChartAxisTime(
-        totalLeadTime / formattedLeadTimeData.length
+        totalLeadTime / formattedLeadTimeData.length,
       );
     }
     if (totalLeadTimeForChange) {
       avgLeadTimeForChange = formatChartAxisTime(
-        totalLeadTimeForChange / formattedLeadTimeForChangeData.length
+        totalLeadTimeForChange / formattedLeadTimeForChangeData.length,
       );
     }
 
@@ -505,7 +505,7 @@ export const AaDoraPage = ({ timeperiod }: { timeperiod: Timeperiod }) => {
     setAverageCycleTimeChartData(generateAverageChart(formattedCycleTimeData));
     setAverageLeadTimeChartData(generateAverageChart(formattedLeadTimeData));
     setAverageLeadTimeForChangeChartData(
-      generateAverageChart(formattedLeadTimeForChangeData)
+      generateAverageChart(formattedLeadTimeForChangeData),
     );
   }, [
     formattedLeadTimeData,
@@ -559,7 +559,7 @@ export const AaDoraPage = ({ timeperiod }: { timeperiod: Timeperiod }) => {
               <AaDoraChart
                 timeperiod={timeperiod}
                 charts={chartsDeploymentFreq}
-                chartColor={["#3090B3", "#FFA1B5"]}
+                chartColor={['#3090B3', '#FFA1B5']}
                 chartHeight={360}
                 loading={deploymentFreqState.loading}
                 customPointFormatter={null}
@@ -571,10 +571,10 @@ export const AaDoraPage = ({ timeperiod }: { timeperiod: Timeperiod }) => {
               <AaDoraChart
                 timeperiod={timeperiod}
                 charts={chartsLeadTime}
-                chartColor={["#FF6384", "#333333"]}
+                chartColor={['#FF6384', '#333333']}
                 yAxisFormatter={function (this: any) {
                   const formattedValue: string = formatChartAxisTime(
-                    this.value
+                    this.value,
                   );
                   return `<span>${formattedValue}</span>`;
                 }}
@@ -583,16 +583,16 @@ export const AaDoraPage = ({ timeperiod }: { timeperiod: Timeperiod }) => {
                   const formattedValue = formatChartAxisTime(this.options.y);
 
                   const keyIndex = formattedCycleTimeData.findIndex(
-                    (item) => item[0] === this.options.x
+                    item => item[0] === this.options.x,
                   );
 
                   return `<span>${this.series.userOptions.name.replace(
-                    "Deployments ",
-                    ""
+                    'Deployments ',
+                    '',
                   )}: ${formattedValue}</span><br/><span>${
-                    this.series.initialType === "scatter"
+                    this.series.initialType === 'scatter'
                       ? `Ticket key: ${ticketKeys[keyIndex]}`
-                      : ""
+                      : ''
                   }`;
                 }}
                 loading={leadTimeState.loading}
