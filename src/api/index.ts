@@ -567,6 +567,10 @@ export class AgileAnalyticsAPIClient implements AgileAnalyticsAPI {
       );
     }
 
+    if (response?.status === 204) {
+      return null
+    }
+
     const state = await response.json();
 
     return state;
@@ -585,6 +589,10 @@ export class AgileAnalyticsAPIClient implements AgileAnalyticsAPI {
           response,
         )}`,
       );
+    }
+
+    if (response?.status === 204) {
+      return []
     }
 
     const state = await response.json();

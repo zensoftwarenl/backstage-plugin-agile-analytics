@@ -1,4 +1,4 @@
-export { A as AgileAnalyticsPage, j as agileAnalyticsPlugin } from './esm/index-0e5c1f1e.esm.js';
+export { A as AgileAnalyticsPage, j as agileAnalyticsPlugin } from './esm/index-299257c9.esm.js';
 import '@backstage/core-plugin-api';
 import 'moment';
 //# sourceMappingURL=index.esm.js.map

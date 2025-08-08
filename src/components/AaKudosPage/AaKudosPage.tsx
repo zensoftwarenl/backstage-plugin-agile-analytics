@@ -9,7 +9,7 @@ import {
   User,
   WorkspacesDataResponse,
 } from '../../api/types';
-import { Chip, Grid, Typography } from '@material-ui/core';
+import { Grid, Typography } from '@material-ui/core';
 import { configApiRef, useApi } from '@backstage/core-plugin-api';
 import { agileAnalyticsApiRef } from '../../api';
 import useAsync from 'react-use/lib/useAsync';

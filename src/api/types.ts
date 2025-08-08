@@ -14,40 +14,43 @@ export type OrganisationDataResponse = {
   orgHash: string;
   orgName: string;
   usersNumber: number;
-  status: string;
-  subscription: string;
+  status?: string;
+  subscription?: string;
 };
 
 export type Ticket = {
-  summary: string;
+  summary?: string;
   key: string;
-  hours: number;
+  hours?: number;
+  reported_hours?: number;
   timestamp: number;
-  parent: {
+  parent?: {
     key: string;
     label: string;
     predictions: { value: number }[];
   };
+  predictions?: { value: number }[];
   subtasks?: Ticket[];
-  transition_from: string;
-  transition_to: string;
-  sprint: string;
-  type: string;
-  confidence: number;
+  transition_from?: string;
+  transition_to?: string;
+  sprint?: string;
+  type?: string;
+  label?: string;
+  confidence?: number;
 };
 
 export type RowFormattedTicket = {
-  summary: string;
+  summary?: string;
   'ticket key': string;
-  hours: number;
+  hours?: number;
   'date event': number;
   subtasks?: RowFormattedTicket[] | null;
-  'transition from': string;
-  'transition to': string;
-  sprint: string;
-  type: string;
-  confidence: number;
-  label: string;
+  'transition from'?: string;
+  'transition to'?: string;
+  sprint?: string;
+  type?: string;
+  confidence?: number | null;
+  label?: string;
 };
 
 export type SiDataOptions = {
@@ -287,7 +290,7 @@ export type UserPicOptions = {
   orgHash: string;
 };
 
-export type EmojiDataResponse = string[];
+export type EmojiDataResponse = { codepoint: string; shortcode: string; imgUrl?: string }[];
 
 export type TeamKudosLeaderBoardOptions = {
   team: string;
@@ -312,7 +315,7 @@ export type TeamKudosLeaderBoardResponse = {
     message: string;
     to: string
   }
-};
+} | null;
 
 export type KudosChartResponse = (string | number)[][];
 

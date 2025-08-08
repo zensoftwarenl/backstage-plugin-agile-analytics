@@ -10,27 +10,7 @@ import {
 } from '../../api/types';
 import { ListItem, List } from '@material-ui/core';
 import Box from '@material-ui/core/Box';
-import { init } from 'emoji-mart';
-import data from '@emoji-mart/data';
-
-init({ data });
-
-
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'em-emoji': React.DetailedHTMLProps<
-        React.HTMLAttributes<HTMLElement>,
-        HTMLElement
-      > & {
-        id?: string;
-        shortcode?: string;
-        size?: string | number;
-        set?: string;
-      };
-    }
-  }
-}
+import { Emoji } from 'emoji-picker-react';
 
 export const AaKudosLeaderboard = ({
   localTeamsState,
@@ -84,8 +64,8 @@ export const AaKudosLeaderboard = ({
       }
 
       const sortedList =
-        kudosLeaderBoard.team_members_list.length > 0
-          ? [...kudosLeaderBoard.team_members_list]
+        kudosLeaderBoard?.team_members_list.length > 0
+          ? [...kudosLeaderBoard?.team_members_list]
           : teamUsers.map(userHash => ({
               hash: userHash,
               emoji_quantity: 0,
@@ -128,8 +108,8 @@ export const AaKudosLeaderboard = ({
       }
 
       const sortedList =
-        kudosLeaderBoard.team_members_list.length > 0
-          ? [...kudosLeaderBoard.team_members_list]
+        kudosLeaderBoard?.team_members_list.length > 0
+          ? [...kudosLeaderBoard?.team_members_list]
           : teamUsers.map(userHash => ({
               hash: userHash,
               emoji_quantity: 0,
@@ -278,9 +258,25 @@ function LeaderbordBodyRow({
         >
           <p>{emojiQuantity}</p>
           <div className="flex items-center">
-            {emoji.map(emojiItem => (
-              <em-emoji id={emojiItem} key={emojiItem} size={16} set="google" />
-            ))}
+            {emoji.map(emojiItem => {
+              if (emojiItem?.imgUrl) {
+                return (
+                  <img
+                    src={emojiItem?.imgUrl}
+                    alt={emojiItem?.shortcode}
+                    className="emoji-xs"
+                    key={emojiItem?.codepoint}
+                  />
+                );
+              }
+              return (
+                <Emoji
+                  unified={emojiItem.codepoint}
+                  size={16}
+                  key={emojiItem?.codepoint}
+                />
+              );
+            })}
           </div>
         </Box>
       </Box>

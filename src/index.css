@@ -153,3 +153,23 @@
 .content-container {
   overflow-x: hidden;
 }
+
+.emoji-xs {
+   width: 16px;
+  height: 16px;
+}
+
+.emoji-small {
+   width: 18px;
+  height: 18px;
+}
+
+.emoji-medium {
+   width: 40px;
+  height: 40px;
+}
+
+.emoji-big {
+   width: 52px;
+  height: 52px;
+}

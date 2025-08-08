@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import { KudosChartResponse, Timeperiod, User } from '../../api/types';
-import { Progress, Select } from '@backstage/core-components';
+import { Progress } from '@backstage/core-components';
 import { Box, Typography } from '@material-ui/core';
 import Chart from 'react-google-charts';
 import { configApiRef, useApi } from '@backstage/core-plugin-api';
@@ -78,7 +78,7 @@ export const AaKudosChart = ({
     return <Progress />;
   } else if (kudosSankeyState?.error) {
     return <Alert severity="error">{kudosSankeyState?.error?.message}</Alert>;
-  } else if (!kudosSankeyState?.value) {
+  } else if (!kudosSankeyState?.value || !kudosSankeyState?.value?.length) {
     return <Typography component="p">No data</Typography>;
   }
 

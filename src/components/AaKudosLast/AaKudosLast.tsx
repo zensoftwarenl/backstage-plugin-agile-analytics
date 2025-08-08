@@ -3,26 +3,7 @@ import React, { Fragment } from 'react';
 import { InfoCard } from '@backstage/core-components';
 import { EmojiDataResponse, OrgUsersDataResponse, User } from '../../api/types';
 import { Box } from '@material-ui/core';
-import { init } from 'emoji-mart';
-import data from '@emoji-mart/data';
-
-init({ data });
-
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'em-emoji': React.DetailedHTMLProps<
-        React.HTMLAttributes<HTMLElement>,
-        HTMLElement
-      > & {
-        id?: string;
-        shortcode?: string;
-        size?: string | number;
-        set?: string;
-      };
-    }
-  }
-}
+import { Emoji } from 'emoji-picker-react';
 
 export const AaKudosLast = ({
   users,
@@ -32,14 +13,15 @@ export const AaKudosLast = ({
   users: { data: OrgUsersDataResponse };
   kudos: EmojiDataResponse;
   kudosLeaderBoard: any;
-}) => {
+  }) => {
+
   const createFromToTitle = () => {
     const fromUser = users.data.find(
-      (user: User) => user.hash === kudosLeaderBoard.last_kudo.from,
+      (user: User) => user.hash === kudosLeaderBoard?.last_kudo.from,
     );
     const from = fromUser ? fromUser.user_name : '';
     const toUser = users.data.find(
-      user => user.hash === kudosLeaderBoard.last_kudo.to,
+      user => user.hash === kudosLeaderBoard?.last_kudo.to,
     );
     const to = toUser ? toUser.user_name : '';
 
@@ -53,7 +35,7 @@ export const AaKudosLast = ({
   };
 
   const createChannelTitle = () => {
-    const channel = kudosLeaderBoard.last_kudo.channel;
+    const channel = kudosLeaderBoard?.last_kudo?.channel;
 
     return (
       <Box sx={{ color: '#ccc' }}>
@@ -63,11 +45,11 @@ export const AaKudosLast = ({
   };
 
   const getEmojisFromMessage = () => {
-    const message = kudosLeaderBoard.last_kudo.message
-      ? kudosLeaderBoard.last_kudo.message
+    const message = kudosLeaderBoard?.last_kudo.message
+      ? kudosLeaderBoard?.last_kudo.message
       : '';
-    const emojiInMessageQuantity = kudosLeaderBoard.last_kudo.amount
-      ? kudosLeaderBoard.last_kudo.amount
+    const emojiInMessageQuantity = kudosLeaderBoard?.last_kudo.amount
+      ? kudosLeaderBoard?.last_kudo.amount
       : '0';
     const regex = /:[^\s]*:/gm;
     const emojiInMessageArray = Array.from(message.matchAll(regex));
@@ -75,7 +57,7 @@ export const AaKudosLast = ({
     const listOfEmojis = kudos.filter(emoji => {
       return emojiInMessageArray.findIndex((e: any) => e[0] === emoji);
     });
-
+    
     return (
       <>
         <Box
@@ -89,17 +71,33 @@ export const AaKudosLast = ({
           +{emojiInMessageQuantity}
         </Box>
         <Box>
-          {listOfEmojis.map(emoji => (
-            <em-emoji id={emoji} size={40} set="google" />
-          ))}
+          {listOfEmojis.map(emoji => {
+            if (emoji?.imgUrl) {
+              return (
+                <img
+                  src={emoji?.imgUrl}
+                  className='emoji-medium'
+                  alt={emoji?.codepoint}
+                  key={emoji?.codepoint}
+                />
+              );
+            }
+            return (
+              <Emoji
+                unified={emoji.codepoint}
+                size={40}
+                key={emoji?.codepoint}
+              />
+            );
+          })}
         </Box>
       </>
     );
   };
 
   const transformMessageWithEmoji = () => {
-    const message = kudosLeaderBoard.last_kudo.message
-      ? kudosLeaderBoard.last_kudo.message
+    const message = kudosLeaderBoard?.last_kudo.message
+      ? kudosLeaderBoard?.last_kudo.message
       : '';
     const regex = /:[^\s]*:/gm;
     const emojiInMessage = message.matchAll(regex);
@@ -122,17 +120,29 @@ export const AaKudosLast = ({
       return (
         <Fragment key={`${index}${emoji}`}>
           {str}
-          <em-emoji id={emoji} size={18} set="google" />
+          {emoji?.imgUrl ? (
+            <img
+              src={emoji?.imgUrl}
+              className="emoji-small"
+              alt={emoji?.codepoint}
+              key={emoji?.codepoint}
+            />
+          ) : (
+            <Emoji unified={emoji?.shortcode} size={18} />
+          )}
         </Fragment>
       );
     });
     return newmess;
   };
 
+
   const getContent = () => {
     if (
-      +kudosLeaderBoard.total_kudos === 0 ||
-      Object.keys(kudosLeaderBoard.last_kudo).length === 0
+      +kudosLeaderBoard?.total_kudos === 0 ||
+      kudosLeaderBoard?.last_kudo && Object.keys(
+        kudosLeaderBoard?.last_kudo,
+      ).length === 0
     ) {
       return <Box>No messages</Box>;
     }

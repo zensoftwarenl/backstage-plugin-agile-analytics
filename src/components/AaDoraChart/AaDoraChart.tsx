@@ -268,7 +268,7 @@ export const AaDoraChart = ({
           {charts?.length && charts.length === 1 ? (
             <div style={{ display: 'flex', position: 'relative' }}>
               <h5 style={{ fontSize: 24, fontWeight: 500 }}>
-                {charts[0].title.label}
+                {charts[0].title?.label}
               </h5>
               {charts[0]?.description ? (
                 <>

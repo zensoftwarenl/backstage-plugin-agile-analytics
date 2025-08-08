@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { Ticket } from './api/types';
-import './index.css'
+import './index.css';
 
 // encoding
 export function encodeApiKey(key: string): string {
@@ -24,31 +24,45 @@ export function getEndDate(): number {
 }
 
 // si page
-export function getUniqueListByParent(arr: Ticket[]) {
-  const uniqueListOfLatest: Ticket[] = arr.reduce(
+export const getUniqueTasks = (arr: Ticket[]) => {
+  const uniqueListofParents: Ticket[] = arr?.reduce(
     (acc: Ticket[], item: Ticket) => {
-      const isInList = acc.find(
-        ticket => ticket.parent.key === item.parent.key,
-      );
-      if (isInList) {
-        const isLater = item.timestamp >= isInList.timestamp;
-        if (isLater) {
-          return acc.map(task => {
-            if (task.parent.key === item.parent.key) {
-              return item;
-            }
-            return task;
-          });
-        }
-        return acc;
+      // if item has no parent, include it
+      if (!item?.parent) {
+        return [...acc, item];
       }
-      return [...acc, item];
+      // if item has partent, but the parent is not in the list, include PARENT in the list with subtask's timestamp
+      if (!arr?.find(arrItem => arrItem?.key === item?.parent?.key)) {
+        // check if this parens has already been added
+        if (!acc?.find(accItem => accItem?.key === item?.parent?.key)) {
+          return [...acc, { ...item?.parent, timestamp: item?.timestamp }];
+        }
+      }
+      // if the item hasa parent and parent is in the array, ignore the item (it will be included later as a subtask)
+      return acc;
     },
     [],
   );
 
+  const uniqueListOfLatest = uniqueListofParents?.map(item => {
+    const subtasks = arr?.filter(ticket => ticket?.parent?.key === item?.key);
+    // check if parent task have any subtasks which was updated later then the parent task.
+    // if such subtasks exist, replase parent task timestamp with this latest one
+    if (subtasks?.length) {
+      const latestTimestamp = subtasks?.reduce((acc, subtask) => {
+        if (subtask?.timestamp > acc) {
+          return subtask?.timestamp;
+        }
+        return acc;
+      }, item?.timestamp);
+      return { ...item, timestamp: latestTimestamp, subtasks: subtasks };
+    }
+
+    return item;
+  });
+
   return uniqueListOfLatest;
-}
+};
 
 export function capitalizeFirstLetter(string: string): string {
   if (!string) {
@@ -299,17 +313,19 @@ export function generateErrorBudgetChartOptionsBase(
         },
         events: {
           legendItemClick: function (this: any) {
-            const name: string= this?.userOptions?.slo_name
+            const name: string = this?.userOptions?.slo_name
               ? this?.userOptions?.service
                 ? this?.userOptions?.slo_name + ' ' + this?.userOptions?.service
                 : this?.userOptions?.slo_name
               : this?.userOptions?.title;
-            setDataFeaturesVisibility((prevState: {[name: string]: boolean}) => {
-              return {
-                ...prevState,
-                [name]: !dataFeaturesVisibility[name],
-              };
-            });
+            setDataFeaturesVisibility(
+              (prevState: { [name: string]: boolean }) => {
+                return {
+                  ...prevState,
+                  [name]: !dataFeaturesVisibility[name],
+                };
+              },
+            );
           },
         },
       },
@@ -508,7 +524,7 @@ export function filterDataEvents(fullData: any[], min: number, max: number) {
       if (item?.length && item[0] >= min && item[0] <= max) {
         return item;
       }
-      return null
+      return null;
     });
     return { ...dataset, data: [...updatedData] };
   });

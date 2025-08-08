@@ -16,7 +16,7 @@ import {
 import KeyboardArrowUp from '@material-ui/icons/KeyboardArrowUp';
 import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown';
 import { RowFormattedTicket, Ticket, Timeperiod } from '../../api/types';
-import { getUniqueListByParent } from '../../helpers';
+import { getUniqueTasks } from '../../helpers';
 
 export const AaSprintInsightsTable = ({
   timeperiod,
@@ -39,39 +39,38 @@ export const AaSprintInsightsTable = ({
     setPage(0);
   };
 
-  const latestTasksWithUniqueParent = getUniqueListByParent(tickets).sort(
+  console.log(tickets)
+
+  const latestTasksWithUniqueParent = getUniqueTasks(tickets).sort(
     (a, b) => b.timestamp - a.timestamp,
   );
 
-  const parentTaskWithSubTasks: Ticket[] = latestTasksWithUniqueParent.map(
-    uniqueTask => {
-      // if parent task wasn`t updated in the time period, display latest subtask hours & timestam as tasks group`s parent
-      let parentTaskWithLatestTimestamp = { ...uniqueTask, isParent: true };
+  const parentTaskWithSubTasks: Ticket[] = [];
 
-      // check if parent task of the uniqueTask was updated in the time period
-      const parentTasksUpdates = tickets
-        .filter(task => task.key === uniqueTask.parent.key)
-        .sort((a, b) => b.timestamp - a.timestamp);
+  latestTasksWithUniqueParent?.forEach(uniqueTask => {
+    const parentTaskWithLatestTimestamp = { ...uniqueTask, isParent: true };
 
-      if (parentTasksUpdates.length) {
-        // pick latest parent task update
-        const parentTask = parentTasksUpdates[0];
+    if (uniqueTask?.subtasks?.length) {
+      // sun up reported hours of the parent task and subtasks for the parent task row
+      const parentHours = uniqueTask?.reported_hours
+        ? uniqueTask?.reported_hours
+        : 0;
+      const combinedHours = uniqueTask?.subtasks?.reduce((acc, subtask) => {
+        if (subtask?.reported_hours) {
+          return acc + subtask?.reported_hours;
+        }
+        return acc;
+      }, parentHours);
 
-        // if parent task was modifified, display it as tasks group`s parent, but with latest subtask timestamp
-        parentTaskWithLatestTimestamp = {
-          ...parentTask,
-          timestamp: uniqueTask.timestamp,
-          isParent: true,
-        };
-      }
-
-      const allSubtasks = tickets.filter(
-        task => task.parent.key === uniqueTask.parent.key,
-      );
-
-      return { ...parentTaskWithLatestTimestamp, subtasks: [...allSubtasks] };
-    },
-  );
+      parentTaskWithSubTasks.push({
+        ...parentTaskWithLatestTimestamp,
+        reported_hours: combinedHours,
+      });
+      parentTaskWithSubTasks.push(...uniqueTask?.subtasks);
+    } else {
+      parentTaskWithSubTasks.push(parentTaskWithLatestTimestamp);
+    }
+  });
 
   const formattedTableData = parentTaskWithSubTasks.map(ticket => {
     const formattedTicket = {
@@ -84,11 +83,10 @@ export const AaSprintInsightsTable = ({
       summary: ticket.summary,
       hours: ticket.hours,
       label:
-        ticket.parent.label
-          .split(' ')
-          .map(word => word[0].toUpperCase() + word.slice(1))
+        ticket?.label?.split(' ')
+          .map((word: string) => word[0].toUpperCase() + word.slice(1))
           .join(' ') ?? '',
-      confidence: +ticket.parent.predictions[0].value,
+      confidence: ticket?.predictions?.length ? (+ticket?.predictions[0].value) : null,
       subtasks: ticket?.subtasks?.length
         ? ticket.subtasks.map(subtask => {
             return {
@@ -101,7 +99,7 @@ export const AaSprintInsightsTable = ({
               summary: subtask.summary,
               hours: subtask.hours,
               label: '',
-              confidence: +ticket.parent.predictions[0].value,
+              confidence: subtask?.predictions?.length ? (+subtask?.predictions[0].value) : null,
             };
           })
         : null,
@@ -160,13 +158,13 @@ function Row(props: { row: RowFormattedTicket }) {
     <React.Fragment>
       <TableRow>
         <TableCell style={{ width: '3%', paddingTop: 4, paddingBottom: 4 }}>
-          <IconButton
+          {row?.subtasks?.length ? <IconButton
             // aria-label="expand row"
 
             onClick={() => setOpen(!open)}
           >
             {open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
-          </IconButton>
+          </IconButton> : null}
         </TableCell>
         <TableCell
           padding="none"
@@ -211,10 +209,10 @@ function Row(props: { row: RowFormattedTicket }) {
           style={{ width: '7%', paddingTop: 4, paddingBottom: 4 }}
           padding="none"
         >
-          {row.label}
+          {row?.label}
         </TableCell>
         <TableCell style={{ width: '9%', paddingTop: 4, paddingBottom: 4 }}>
-          <LinearGauge value={row.confidence} />
+          {row?.confidence ? <LinearGauge value={row?.confidence} /> : null}
         </TableCell>
       </TableRow>
       <TableRow>
@@ -294,7 +292,7 @@ function Row(props: { row: RowFormattedTicket }) {
                     <TableCell
                       style={{ width: '9%', paddingTop: 4, paddingBottom: 4 }}
                     >
-                      <LinearGauge value={row.confidence} />
+                      <LinearGauge value={subtask.confidence} />
                     </TableCell>
                   </TableRow>
                 ))}
