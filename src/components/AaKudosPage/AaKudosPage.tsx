@@ -199,7 +199,7 @@ export const AaKudosPage = ({ timeperiod }: { timeperiod: Timeperiod }) => {
   }
 
   return (
-    <Grid container spacing={3} alignItems="stretch">
+    <Grid container spacing={3} alignItems="stretch" >
       <Grid item xs={4}>
         <AaKudosLast
           users={orgUsersState?.value}

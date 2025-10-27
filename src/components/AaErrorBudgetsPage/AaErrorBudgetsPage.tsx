@@ -1,6 +1,4 @@
 /* eslint-disable no-console */
-import React from 'react';
-import '../../index.css';
 import { Progress } from '@backstage/core-components';
 import { configApiRef, useApi } from '@backstage/core-plugin-api';
 import useAsync from 'react-use/lib/useAsync';

@@ -1,6 +1,5 @@
 /* eslint-disable no-console */
-import React, { useEffect, useRef, useState } from 'react';
-import '../../index.css';
+import { useEffect, useRef, useState } from 'react';
 import { Box, Button, Typography } from '@material-ui/core';
 import { Timeperiod } from '../../api/types';
 import HighchartsReact from 'highcharts-react-official';
@@ -13,7 +12,6 @@ import {
   generateEventsChartOptionsBase,
 } from '../../helpers';
 import _ from 'lodash';
-
 const chartManager: {
   tooltip?: any;
 }[] = [];
@@ -188,7 +186,7 @@ export const AaErrorBudgetsChart = ({
   step: string;
   chartState: any;
   deploymentsList: any;
-  }) => {
+}) => {
   const [zoomTimeperiod, setZoomTimeperiod] = useState(null);
   const [dataFeaturesVisibility, setDataFeaturesVisibility] = useState(null);
   const [eventsVisibility, setEventsVisibility] = useState(null);
@@ -255,20 +253,18 @@ export const AaErrorBudgetsChart = ({
         setWasChartDataFormatted(true);
       }
 
-      const formattedDataWithOptions = formattedData.map(
-        (dataSeries: any) => {
-          const formattedSeries = {
-            ...dataSeries,
-            data: [...dataSeries?.data],
-            name: dataSeries.feature,
-            tooltip: {
-              valueSuffix: ' %',
-            },
-            visible: true,
-          };
-          return formattedSeries;
-        },
-      );
+      const formattedDataWithOptions = formattedData.map((dataSeries: any) => {
+        const formattedSeries = {
+          ...dataSeries,
+          data: [...dataSeries?.data],
+          name: dataSeries.feature,
+          tooltip: {
+            valueSuffix: ' %',
+          },
+          visible: true,
+        };
+        return formattedSeries;
+      });
 
       setData(formattedDataWithOptions);
 
@@ -413,7 +409,9 @@ export const AaErrorBudgetsChart = ({
                   ?.map(series => {
                     const updated = {
                       ...series,
-                      visible: eventsVisibility ? eventsVisibility[featureName][series?.name] : null,
+                      visible: eventsVisibility
+                        ? eventsVisibility[featureName][series?.name]
+                        : null,
                     };
                     return updated;
                   })
@@ -597,17 +595,17 @@ export const AaErrorBudgetsChart = ({
       : null;
   }
 
+  const style = {
+    height: '42px',
+    display: 'flex',
+    justifyContent: 'end',
+    alignItems: 'center',
+    gap: '12px',
+  } as const;
+
   return (
     <div className="relative">
-      <Box
-        className="absolute gap-12 "
-        sx={{
-          height: '42px',
-          display: 'flex',
-          justifyContent: 'end',
-          alignItems: 'center'
-        }}
-      >
+      <Box className="absolute " sx={style}>
         <Button
           variant="contained"
           onClick={() => {
@@ -630,7 +628,7 @@ export const AaErrorBudgetsChart = ({
 
       {clonedOptions ? <SyncChart options={clonedOptions} /> : null}
 
-      <div className="mt-4">
+      <div >
         {dataFeaturesVisibility &&
           Object.keys(dataFeaturesVisibility).map((featureName, i) => {
             if (dataFeaturesVisibility[featureName]) {
@@ -666,7 +664,7 @@ export const AaErrorBudgetsChart = ({
                 </div>
               );
             }
-            return null
+            return null;
           })}
       </div>
     </div>

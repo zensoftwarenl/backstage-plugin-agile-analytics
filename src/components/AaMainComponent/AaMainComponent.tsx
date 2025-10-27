@@ -1,16 +1,9 @@
-import React from 'react';
-import { Typography, Grid } from '@material-ui/core';
 import {
-  InfoCard,
   Header,
   Page,
-  Content,
-  ContentHeader,
   HeaderLabel,
-  SupportButton,
   Progress,
 } from '@backstage/core-components';
-import { ExampleFetchComponent } from '../ExampleFetchComponent';
 import { configApiRef, useApi } from '@backstage/core-plugin-api';
 import { agileAnalyticsApiRef } from '../../api';
 import useAsync from 'react-use/lib/useAsync';

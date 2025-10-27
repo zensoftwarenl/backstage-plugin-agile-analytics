@@ -1,6 +1,5 @@
 /* eslint-disable no-console */
-import React, { Fragment } from 'react';
-import { InfoCard, Select } from '@backstage/core-components';
+import { Select } from '@backstage/core-components';
 import {
   EmojiDataResponse,
   OrgUsersDataResponse,
@@ -11,6 +10,7 @@ import {
 import { ListItem, List } from '@material-ui/core';
 import Box from '@material-ui/core/Box';
 import { Emoji } from 'emoji-picker-react';
+import { Card, CardHeader, CardBody, Text } from '@backstage/ui';
 
 export const AaKudosLeaderboard = ({
   localTeamsState,
@@ -147,29 +147,34 @@ export const AaKudosLeaderboard = ({
   const selectedValue = getSelectedTeam();
 
   return (
-    <InfoCard title="Leaderboard" className="full-height">
-      {/* Header */}
-      <Box>
-        <Box sx={{ minWidth: '260px' }}>
-          {localTeamsState?.length === 1 ? (
-            <p className="inline-block py-2 px-4 border border-solid border-gray-300 rounded font-display text-gray-600">
-              {localTeamsState[0].team_name}
-            </p>
-          ) : (
-            <Select
-              items={transformTeamList()}
-              selected={selectedValue?.value}
-              onChange={event => setActiveTeam(event)}
-              label="Selected Team"
-            />
-          )}
+    <Card style={{ height: '100%' }}>
+      <CardHeader>
+        <Text variant="title-medium" weight="bold">
+          Leaderboard
+        </Text>
+        <Box>
+          <Box sx={{ minWidth: '260px' }}>
+            {localTeamsState?.length === 1 ? (
+              <p className="inline-block py-2 px-4 border border-solid border-gray-300 rounded font-display text-gray-600">
+                {localTeamsState[0].team_name}
+              </p>
+            ) : (
+              <Select
+                items={transformTeamList()}
+                selected={selectedValue?.value}
+                onChange={event => setActiveTeam(event)}
+                label="Selected Team"
+              />
+            )}
+          </Box>
         </Box>
-      </Box>
-      {/* Body */}
-      <Box sx={{ maxHeight: '360px', overflow: 'auto' }}>
-        <List>{createList()}</List>
-      </Box>
-    </InfoCard>
+      </CardHeader>
+      <CardBody>
+        <Box sx={{ maxHeight: '360px', overflow: 'auto' }}>
+          <List>{createList()}</List>
+        </Box>
+      </CardBody>
+    </Card>
   );
 };
 
@@ -202,38 +207,39 @@ function LeaderbordBodyRow({
     return rank;
   };
 
+    const outerBoxStyle = {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      width: '100%',
+      fontWeight: 600,
+      fontSize: '18px',
+      gap: '32px',
+  } as const;
+  
+  const innerBoxStyle = {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: '32px',
+  } as const;
+
+  const xsStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+  } as const;
+
+
   return (
     <ListItem
       className={`rank rank-${rank ? getRank('title') : +index + 1}`}
       divider
     >
-      <Box
-        className="gap-32"
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          width: '100%',
-          fontWeight: 600,
-          fontSize: '18px',
-        }}
-      >
-        <Box
-          className="gap-32"
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
+      <Box sx={outerBoxStyle}>
+        <Box sx={innerBoxStyle}>
           <p>{rank ? getRank() : `${+index + 1}.`}</p>
-          <Box
-            className="gap-8"
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-            }}
-          >
+          <Box sx={xsStyle}>
             <Box
               sx={{
                 width: '40px',
@@ -249,13 +255,7 @@ function LeaderbordBodyRow({
             <p>{person?.user_name ? person.user_name : person?.email}</p>
           </Box>
         </Box>
-        <Box
-          className="gap-8"
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-          }}
-        >
+        <Box className="gap-8" sx={xsStyle}>
           <p>{emojiQuantity}</p>
           <div className="flex items-center">
             {emoji.map(emojiItem => {
@@ -264,8 +264,8 @@ function LeaderbordBodyRow({
                   <img
                     src={emojiItem?.imgUrl}
                     alt={emojiItem?.shortcode}
-                    className="emoji-xs"
                     key={emojiItem?.codepoint}
+                    style={{ width: '16px', height: '16px' }}
                   />
                 );
               }

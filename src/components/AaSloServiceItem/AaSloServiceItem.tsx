@@ -1,9 +1,7 @@
 /* eslint-disable no-console */
-import React, { useState, useEffect, useCallback } from 'react';
 import { InfoCard, Progress } from '@backstage/core-components';
 import {
   Service,
-  ServicesDataResponse,
   SingleServiceDataResponse,
   Timeperiod,
 } from '../../api/types';
@@ -25,8 +23,6 @@ export const AaSloServiceItem = ({
   const config = useApi(configApiRef);
   const orgHash = config.getString('agileAnalytics.orgHash');
   const apiKey = config.getString('agileAnalytics.apiKey');
-
-  const { date_start: dateTimeStart, date_end: dateTimeEnd } = timeperiod;
 
   const singleServicesState =
     useAsync(async (): Promise<SingleServiceDataResponse> => {
@@ -56,7 +52,11 @@ export const AaSloServiceItem = ({
         <Grid container spacing={3} alignItems="stretch">
           {singleServicesState.value.features.map(feature => (
             <Grid item xs={3}>
-              <AaSloServiceSloCard timeperiod={timeperiod} service={service} feature={feature} />
+              <AaSloServiceSloCard
+                timeperiod={timeperiod}
+                service={service}
+                feature={feature}
+              />
             </Grid>
           ))}
         </Grid>

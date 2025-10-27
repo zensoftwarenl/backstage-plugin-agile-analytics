@@ -1,13 +1,7 @@
 /* eslint-disable no-console */
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { InfoCard, Progress } from '@backstage/core-components';
-import {
-  Deployment,
-  DeploymentFreqResponse,
-  FilterRepo,
-  Repo,
-  Timeperiod,
-} from '../../api/types';
+import { Deployment, FilterRepo, Repo, Timeperiod } from '../../api/types';
 import { Chip, Grid } from '@material-ui/core';
 import { configApiRef, useApi } from '@backstage/core-plugin-api';
 import { agileAnalyticsApiRef } from '../../api';
@@ -146,7 +140,7 @@ export const AaDoraPage = ({ timeperiod }: { timeperiod: Timeperiod }) => {
   ];
 
   const filterDeploymentFreq = useCallback(
-    data => {
+    (data: any) => {
       const filteredData = data.filter((deployment: Deployment) => {
         return repositoriesFilter.find(
           repo =>
@@ -392,7 +386,7 @@ export const AaDoraPage = ({ timeperiod }: { timeperiod: Timeperiod }) => {
 
   // SET AVERAGE
   const generateAverageChart = useCallback(
-    formattedData => {
+    (formattedData: any) => {
       return timeperiodByDays.reduce((acc: number[][], day, i) => {
         const dayDeployments = formattedData.filter(
           (deployment: number[]) =>

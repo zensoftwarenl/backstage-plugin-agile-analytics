@@ -1,17 +1,19 @@
 /* eslint-disable no-console */
-import React, { useState } from 'react';
-import { Grid } from '@material-ui/core';
+import { useState } from 'react';
+import { Grid, Tab } from '@material-ui/core';
+import TabPanel from '@mui/lab/TabPanel';
+import TabList from '@mui/lab/TabList';
+import TabContext from '@mui/lab/TabContext';
 import {
   Content,
   InfoCard,
   StructuredMetadataTable,
-  Tabs,
 } from '@backstage/core-components';
 import { OrganisationDataResponse } from '../../api/types';
-import { AaTimeSelect } from '../AaTimeSelect';
+import { AaTimeSelect } from '../AaTimeSelect/';
 import { getEndDate, getStartDate } from '../../helpers';
-import { AaDoraPage } from '../AaDoraPage';
 import { AaSprintInsightsPage } from '../AaSprintInsightsPage';
+import { AaDoraPage } from '../AaDoraPage';
 import { AaStockPage } from '../AaStockPage';
 import { AaLeaksPage } from '../AaLeaksPage';
 import { AaSlosPage } from '../AaSlosPage';
@@ -86,9 +88,7 @@ export const AaContentComponent = ({
       label: 'DORA',
       content: (
         <Grid container spacing={3} direction="column">
-          <Grid item>
-            <AaDoraPage timeperiod={timeperiod} />
-          </Grid>
+          <Grid item><AaDoraPage timeperiod={timeperiod} /></Grid>
         </Grid>
       ),
     },
@@ -96,9 +96,7 @@ export const AaContentComponent = ({
       label: 'KUDOS',
       content: (
         <Grid container spacing={3} direction="column">
-          <Grid item>
-            <AaKudosPage timeperiod={timeperiod} />
-          </Grid>
+          <Grid item><AaKudosPage timeperiod={timeperiod} /></Grid>
         </Grid>
       ),
     },
@@ -106,9 +104,7 @@ export const AaContentComponent = ({
       label: 'STOCK',
       content: (
         <Grid container spacing={3} direction="column">
-          <Grid item>
-            <AaStockPage timeperiod={timeperiod} />
-          </Grid>
+          <Grid item><AaStockPage timeperiod={timeperiod} /></Grid>
         </Grid>
       ),
     },
@@ -116,29 +112,44 @@ export const AaContentComponent = ({
       label: 'LEAKS',
       content: (
         <Grid container spacing={3} direction="column">
-          <Grid item>
-            <AaLeaksPage timeperiod={timeperiod} />
-          </Grid>
+          <Grid item><AaLeaksPage timeperiod={timeperiod} /></Grid>
         </Grid>
       ),
     },
   ];
 
+  const [selectedTab, setSelectedTab] = useState(tabs[0]?.label);
+
   return (
-    <Content className='content-container'>
-      <Grid container spacing={3} direction="column">
-        <Grid item>
+    <Content className="content-container">
+      <div>
+        <Grid container spacing={3} direction="column">
           <Grid item>
-            <AaTimeSelect
+            <Grid item>
+              <AaTimeSelect
               timeperiod={timeperiod}
               setTimeperiod={setTimeperiod}
             />
+            </Grid>
+          </Grid>
+          <Grid item>
+            <TabContext value={selectedTab}>
+              <TabList
+                onChange={(e, newValue) => setSelectedTab(newValue)}
+                aria-label="Agile Analytics features Tabs"
+              >
+                {tabs?.map(tab => (
+                  <Tab label={tab?.label} value={tab?.label} />
+                ))}
+              </TabList>
+              {tabs?.map(tab => (
+                <TabPanel value={tab?.label} sx={{padding: 0}}>{tab?.content}</TabPanel>
+              ))}
+            </TabContext>
           </Grid>
         </Grid>
-        <Grid item>
-          <Tabs tabs={tabs} />
-        </Grid>
-      </Grid>
+      </div>
     </Content>
+    // </div>
   );
 };

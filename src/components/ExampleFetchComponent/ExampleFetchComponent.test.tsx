@@ -1,25 +1,19 @@
-import React from 'react';
-import { render } from '@testing-library/react';
+import { renderInTestApp } from '@backstage/test-utils';
 import { ExampleFetchComponent } from './ExampleFetchComponent';
-import { rest } from 'msw';
-import { setupServer } from 'msw/node';
-import { setupRequestMockHandlers } from '@backstage/test-utils';
 
 describe('ExampleFetchComponent', () => {
-  const server = setupServer();
-  // Enable sane handlers for network requests
-  setupRequestMockHandlers(server);
+  it('renders the user table', async () => {
+    const { getAllByText, getByAltText, getByText, findByRole } =
+      await renderInTestApp(<ExampleFetchComponent />);
 
-  // setup mock response
-  beforeEach(() => {
-    server.use(
-      rest.get('https://randomuser.me/*', (_, res, ctx) =>
-        res(ctx.status(200), ctx.delay(2000), ctx.json({})),
-      ),
-    );
-  });
-  it('should render', async () => {
-    const rendered = render(<ExampleFetchComponent />);
-    expect(await rendered.findByTestId('progress')).toBeInTheDocument();
+    // Wait for the table to render
+    const table = await findByRole('table');
+    const nationality = getAllByText('GB');
+    // Assert that the table contains the expected user data
+    expect(table).toBeInTheDocument();
+    expect(getByAltText('Carolyn')).toBeInTheDocument();
+    expect(getByText('Carolyn Moore')).toBeInTheDocument();
+    expect(getByText('carolyn.moore@example.com')).toBeInTheDocument();
+    expect(nationality[0]).toBeInTheDocument();
   });
 });

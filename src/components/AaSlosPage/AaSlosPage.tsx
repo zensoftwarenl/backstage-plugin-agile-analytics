@@ -1,10 +1,6 @@
 /* eslint-disable no-console */
-import React, { useState, useEffect, useCallback } from 'react';
 import { Progress } from '@backstage/core-components';
-import {
-  ServicesDataResponse,
-  Timeperiod,
-} from '../../api/types';
+import { ServicesDataResponse, Timeperiod } from '../../api/types';
 import { Box, Typography } from '@material-ui/core';
 import { configApiRef, useApi } from '@backstage/core-plugin-api';
 import { agileAnalyticsApiRef } from '../../api';
@@ -34,11 +30,10 @@ export const AaSlosPage = ({ timeperiod }: { timeperiod: Timeperiod }) => {
     return <Typography component="p">No services find</Typography>;
   }
 
-
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
       {servicesState?.value?.map(item => (
-        <Box sx={{marginBottom:'24px'}}>
+        <Box sx={{ marginBottom: '24px' }}>
           <AaSloServiceItem timeperiod={timeperiod} service={item} />
         </Box>
       ))}

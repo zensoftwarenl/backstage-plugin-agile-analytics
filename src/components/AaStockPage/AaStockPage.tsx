@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
-import React from 'react';
 import moment from 'moment';
-import { GaugeCard, InfoCard, Progress } from '@backstage/core-components';
+import { InfoCard, Progress } from '@backstage/core-components';
 import { configApiRef, useApi } from '@backstage/core-plugin-api';
 import useAsync from 'react-use/lib/useAsync';
 import Alert from '@material-ui/lab/Alert';
