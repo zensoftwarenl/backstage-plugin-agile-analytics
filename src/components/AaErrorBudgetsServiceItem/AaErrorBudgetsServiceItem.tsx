@@ -1,9 +1,8 @@
 /* eslint-disable no-console */
-import React, { useState, useEffect, useCallback } from 'react';
 import { InfoCard, Progress } from '@backstage/core-components';
 import {
   Service,
-  ServicesDataResponse,
+
   SingleServiceDataResponse,
   SloHistoryDataResponse,
   Timeperiod,

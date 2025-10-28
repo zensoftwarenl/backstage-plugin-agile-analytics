@@ -1,4 +1,4 @@
-import React from 'react';
+
 import {
   Header,
   Page,
@@ -19,8 +19,8 @@ export const AaMainPageComponent = () => {
 
   const organisationState = useAsync(async (): Promise<any> => {
     const response = await api.getOrganisationData({
-      orgHash,
-      apiKey,
+      orgHash: orgHash ? orgHash : '',
+      apiKey: apiKey ? apiKey : '',
     });
     return response;
   }, []);

@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
-import React, { Fragment } from 'react';
-import { InfoCard } from '@backstage/core-components';
+import { Fragment } from 'react';
 import { EmojiDataResponse, OrgUsersDataResponse, User } from '../../api/types';
 import { Box } from '@material-ui/core';
 import { Emoji } from 'emoji-picker-react';
+import { Card, CardHeader, CardBody, Text } from '@backstage/ui';
 
 export const AaKudosLast = ({
   users,
@@ -76,7 +76,7 @@ export const AaKudosLast = ({
               return (
                 <img
                   src={emoji?.imgUrl}
-                  className='emoji-medium'
+                  style={{ width: '40px', height: '40px' }}
                   alt={emoji?.codepoint}
                   key={emoji?.codepoint}
                 />
@@ -123,9 +123,10 @@ export const AaKudosLast = ({
           {emoji?.imgUrl ? (
             <img
               src={emoji?.imgUrl}
-              className="emoji-small"
+              style={{width: '18px', height: '18px'}}
               alt={emoji?.codepoint}
               key={emoji?.codepoint}
+
             />
           ) : (
             <Emoji unified={emoji?.shortcode} size={18} />
@@ -180,8 +181,13 @@ export const AaKudosLast = ({
   };
 
   return (
-    <InfoCard title="Latest Kudos" className="full-height">
-      <Box>{getContent()}</Box>
-    </InfoCard>
+    <Card style={{ height: '100%' }}>
+      <CardHeader>
+        <Text variant="title-medium" weight="bold">
+          Latest Kudos
+        </Text>
+      </CardHeader>
+      <CardBody>{getContent()}</CardBody>
+    </Card>
   );
 };

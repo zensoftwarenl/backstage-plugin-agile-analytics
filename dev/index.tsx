@@ -1,4 +1,3 @@
-import React from 'react';
 import { createDevApp } from '@backstage/dev-utils';
 import { agileAnalyticsPlugin, AgileAnalyticsPage } from '../src/plugin';
 
@@ -7,6 +6,6 @@ createDevApp()
   .addPage({
     element: <AgileAnalyticsPage />,
     title: 'Root Page',
-    path: '/agile-analytics'
+    path: '/agile-analytics',
   })
   .render();

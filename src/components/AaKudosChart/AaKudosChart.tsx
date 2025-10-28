@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-import React from 'react';
 import { KudosChartResponse, Timeperiod, User } from '../../api/types';
 import { Progress } from '@backstage/core-components';
 import { Box, Typography } from '@material-ui/core';

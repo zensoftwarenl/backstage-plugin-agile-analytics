@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-import React from 'react';
 import { Select } from '@backstage/core-components';
 import { Timeperiod } from '../../api/types';
 import { getEndDate, getStartDate } from '../../helpers';

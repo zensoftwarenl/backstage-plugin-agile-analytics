@@ -1,9 +1,8 @@
 /* eslint-disable no-console */
-import React, { Fragment } from 'react';
-import { InfoCard } from '@backstage/core-components';
 import { EmojiDataResponse, OrgUsersDataResponse } from '../../api/types';
 import { Box } from '@material-ui/core';
 import { Emoji } from 'emoji-picker-react';
+import { Card, CardHeader, CardBody, Text } from '@backstage/ui';
 
 export const AaKudosTotal = ({
   users,
@@ -20,8 +19,8 @@ export const AaKudosTotal = ({
         <img
           src={emoji?.imgUrl}
           alt={emoji?.shortcode}
-          className="emoji-big"
           key={emoji?.codepoint}
+          style={{ width: '52px', height: '52px' }}
         />
       );
     }
@@ -77,8 +76,13 @@ export const AaKudosTotal = ({
   };
 
   return (
-    <InfoCard title="Total kudos this timeperiod" className="full-height">
-      <Box>{createContent()}</Box>
-    </InfoCard>
+    <Card style={{ height: '100%' }}>
+          <CardHeader>
+            <Text variant="title-medium" weight="bold">
+              Total kudos this timeperiod
+            </Text>
+          </CardHeader>
+          <CardBody>{createContent()}</CardBody>
+        </Card>
   );
 };

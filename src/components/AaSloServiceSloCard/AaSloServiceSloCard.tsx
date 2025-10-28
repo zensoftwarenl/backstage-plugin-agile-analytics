@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-import React from 'react';
 import { Progress } from '@backstage/core-components';
 import {
   ErrorBudgetChartDataResponse,
@@ -8,7 +7,7 @@ import {
   SloHistoryDataResponse,
   Timeperiod,
 } from '../../api/types';
-import { Box, Card, CardContent, CardHeader, Chip, Divider, Grid, Typography } from '@material-ui/core';
+import { Box, Card, Divider, Grid, Typography } from '@material-ui/core';
 import { configApiRef, useApi } from '@backstage/core-plugin-api';
 import { agileAnalyticsApiRef } from '../../api';
 import useAsync from 'react-use/lib/useAsync';
@@ -30,6 +29,7 @@ export const AaSloServiceSloCard = ({
   const config = useApi(configApiRef);
   const orgHash = config.getString('agileAnalytics.orgHash');
   const apiKey = config.getString('agileAnalytics.apiKey');
+
 
   const { date_start, date_end } = timeperiod;
 

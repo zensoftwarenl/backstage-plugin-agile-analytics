@@ -1,7 +1,7 @@
-import { agileAnalyticsPluginPlugin } from './plugin';
+import { agileAnalyticsPlugin } from './plugin';
 
 describe('agile-analytics', () => {
   it('should export plugin', () => {
-    expect(agileAnalyticsPluginPlugin).toBeDefined();
+    expect(agileAnalyticsPlugin).toBeDefined();
   });
 });
