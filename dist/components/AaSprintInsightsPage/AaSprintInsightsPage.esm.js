@@ -1,6 +1,6 @@
 import { jsx, jsxs } from 'react/jsx-runtime';
 import { Progress, InfoCard, GaugeCard } from '@backstage/core-components';
-import { useApi, configApiRef } from '@backstage/core-plugin-api';
+import { useApi } from '@backstage/core-plugin-api';
 import useAsync from 'react-use/lib/useAsync';
 import Alert from '@material-ui/lab/Alert';
 import { Grid } from '@material-ui/core';
@@ -8,12 +8,11 @@ import { agileAnalyticsApiRef } from '../../api/index.esm.js';
 import { AaSprintInsightsTable } from '../AaSprintInsightsTable/AaSprintInsightsTable.esm.js';
 
 const AaSprintInsightsPage = ({
-  timeperiod
+  timeperiod,
+  orgHash,
+  apiKey
 }) => {
   const api = useApi(agileAnalyticsApiRef);
-  const config = useApi(configApiRef);
-  const orgHash = config.getString("agileAnalytics.orgHash");
-  const apiKey = config.getString("agileAnalytics.apiKey");
   const siState = useAsync(async () => {
     const response = await api.getSiData({
       orgHash,

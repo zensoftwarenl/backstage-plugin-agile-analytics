@@ -20,16 +20,16 @@ export const AaSloServiceSloCard = ({
   timeperiod,
   service,
   feature,
+  orgHash,
+  apiKey,
 }: {
   timeperiod: Timeperiod;
   service: Service;
   feature: ServiceFeature;
+  orgHash: string;
+  apiKey: string;
 }) => {
   const api = useApi(agileAnalyticsApiRef);
-  const config = useApi(configApiRef);
-  const orgHash = config.getString('agileAnalytics.orgHash');
-  const apiKey = config.getString('agileAnalytics.apiKey');
-
 
   const { date_start, date_end } = timeperiod;
 
@@ -199,7 +199,6 @@ export const AaSloServiceSloCard = ({
   } else if (!chartDataState?.value) {
     return <Typography component="p">No data</Typography>;
   }
-
 
   return (
     <Card>

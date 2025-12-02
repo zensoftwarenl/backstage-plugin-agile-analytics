@@ -10,11 +10,16 @@ import { LeaksStatisticsItem, Timeperiod } from '../../api/types';
 import { agileAnalyticsApiRef } from '../../api';
 import { AaDoraChart } from '../AaDoraChart';
 
-export const AaLeaksPage = ({ timeperiod }: { timeperiod: Timeperiod }) => {
+export const AaLeaksPage = ({
+  timeperiod,
+  orgHash,
+  apiKey,
+}: {
+  timeperiod: Timeperiod;
+  orgHash: string;
+  apiKey: string;
+}) => {
   const api = useApi(agileAnalyticsApiRef);
-  const config = useApi(configApiRef);
-  const orgHash = config.getString('agileAnalytics.orgHash');
-  const apiKey = config.getString('agileAnalytics.apiKey');
 
   const leaksState = useAsync(async (): Promise<any> => {
     const response = await api.getLeaksData({

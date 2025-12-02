@@ -57,9 +57,11 @@ export interface AgileAnalyticsAPI {
   getTeamKudosLeaderBoard(
     options: TeamKudosLeaderBoardOptions,
   ): Promise<TeamKudosLeaderBoardResponse>;
-  getTeamKudosSankeyData(
+  getTeamKudosSankeyData(options: TeamKudosLeaderBoardOptions): Promise<any>;
+  getKudosLeaderBoard(
     options: TeamKudosLeaderBoardOptions,
-  ): Promise<any>;
+  ): Promise<TeamKudosLeaderBoardResponse>;
+  getKudosSankeyData(options: TeamKudosLeaderBoardOptions): Promise<any>;
 }
 
 export const agileAnalyticsApiRef = createApiRef<AgileAnalyticsAPI>({
@@ -556,7 +558,7 @@ export class AgileAnalyticsAPIClient implements AgileAnalyticsAPI {
     options: TeamKudosLeaderBoardOptions,
   ): Promise<TeamKudosLeaderBoardResponse> {
     const response = await fetch(
-      `${this.proxyPath}/${options.orgHash}/teams/${options.team}/leader_board/?date_start=${options.date_start}&date_end=${options.date_end}`,
+      `${this.proxyPath}/${options.orgHash}/kudos/teams/${options.team}/leaderboard/?date_start=${options.date_start}&date_end=${options.date_end}`,
       generateRequestParams(options.apiKey),
     );
     if (!response.ok) {
@@ -568,7 +570,31 @@ export class AgileAnalyticsAPIClient implements AgileAnalyticsAPI {
     }
 
     if (response?.status === 204) {
-      return null
+      return null;
+    }
+
+    const state = await response.json();
+
+    return state;
+  }
+
+  async getKudosLeaderBoard(
+    options: TeamKudosLeaderBoardOptions,
+  ): Promise<TeamKudosLeaderBoardResponse> {
+    const response = await fetch(
+      `${this.proxyPath}/${options.orgHash}/kudos/leaderboard/?date_start=${options.date_start}&date_end=${options.date_end}`,
+      generateRequestParams(options.apiKey),
+    );
+    if (!response.ok) {
+      throw new Error(
+        `There was a problem fetching analytics data: ${await generateErrorMessage(
+          response,
+        )}`,
+      );
+    }
+
+    if (response?.status === 204) {
+      return null;
     }
 
     const state = await response.json();
@@ -580,7 +606,7 @@ export class AgileAnalyticsAPIClient implements AgileAnalyticsAPI {
     options: TeamKudosLeaderBoardOptions,
   ): Promise<KudosChartResponse> {
     const response = await fetch(
-      `${this.proxyPath}/${options.orgHash}/teams/${options.team}/sankey_diagram/?date_start=${options.date_start}&date_end=${options.date_end}`,
+      `${this.proxyPath}/${options.orgHash}/kudos/teams/${options.team}/sankey_diagram/?date_start=${options.date_start}&date_end=${options.date_end}`,
       generateRequestParams(options.apiKey),
     );
     if (!response.ok) {
@@ -592,7 +618,31 @@ export class AgileAnalyticsAPIClient implements AgileAnalyticsAPI {
     }
 
     if (response?.status === 204) {
-      return []
+      return [];
+    }
+
+    const state = await response.json();
+
+    return state;
+  }
+
+  async getKudosSankeyData(
+    options: TeamKudosLeaderBoardOptions,
+  ): Promise<KudosChartResponse> {
+    const response = await fetch(
+      `${this.proxyPath}/${options.orgHash}/kudos/sankey_diagram/?date_start=${options.date_start}&date_end=${options.date_end}`,
+      generateRequestParams(options.apiKey),
+    );
+    if (!response.ok) {
+      throw new Error(
+        `There was a problem fetching analytics data: ${await generateErrorMessage(
+          response,
+        )}`,
+      );
+    }
+
+    if (response?.status === 204) {
+      return [];
     }
 
     const state = await response.json();

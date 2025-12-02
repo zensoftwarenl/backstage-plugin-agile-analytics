@@ -1,6 +1,6 @@
 import { jsx } from 'react/jsx-runtime';
 import { Progress } from '@backstage/core-components';
-import { useApi, configApiRef } from '@backstage/core-plugin-api';
+import { useApi } from '@backstage/core-plugin-api';
 import useAsync from 'react-use/lib/useAsync';
 import Alert from '@material-ui/lab/Alert';
 import { Typography, Box } from '@material-ui/core';
@@ -8,12 +8,11 @@ import { agileAnalyticsApiRef } from '../../api/index.esm.js';
 import { AaErrorBudgetsServiceItem } from '../AaErrorBudgetsServiceItem/AaErrorBudgetsServiceItem.esm.js';
 
 const AaErrorBudgetsPage = ({
-  timeperiod
+  timeperiod,
+  orgHash,
+  apiKey
 }) => {
   const api = useApi(agileAnalyticsApiRef);
-  const config = useApi(configApiRef);
-  const orgHash = config.getString("agileAnalytics.orgHash");
-  const apiKey = config.getString("agileAnalytics.apiKey");
   const servicesState = useAsync(async () => {
     const response = await api.getServicesData({
       orgHash,
@@ -37,7 +36,16 @@ const AaErrorBudgetsPage = ({
   } else if (!servicesState?.value?.length) {
     return /* @__PURE__ */ jsx(Typography, { component: "p", children: "No services find" });
   }
-  return /* @__PURE__ */ jsx(Box, { sx: { display: "flex", flexDirection: "column" }, children: servicesState?.value?.map((item) => /* @__PURE__ */ jsx(Box, { sx: { marginBottom: "24px" }, children: /* @__PURE__ */ jsx(AaErrorBudgetsServiceItem, { timeperiod, service: item, deploymentsList: deploymentFreqState?.value }) })) });
+  return /* @__PURE__ */ jsx(Box, { sx: { display: "flex", flexDirection: "column" }, children: servicesState?.value?.map((item) => /* @__PURE__ */ jsx(Box, { sx: { marginBottom: "24px" }, children: /* @__PURE__ */ jsx(
+    AaErrorBudgetsServiceItem,
+    {
+      timeperiod,
+      service: item,
+      deploymentsList: deploymentFreqState?.value,
+      orgHash,
+      apiKey
+    }
+  ) })) });
 };
 
 export { AaErrorBudgetsPage };

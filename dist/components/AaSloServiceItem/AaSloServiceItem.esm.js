@@ -1,7 +1,7 @@
 import { jsx } from 'react/jsx-runtime';
 import { Progress, InfoCard } from '@backstage/core-components';
 import { Typography, Grid } from '@material-ui/core';
-import { useApi, configApiRef } from '@backstage/core-plugin-api';
+import { useApi } from '@backstage/core-plugin-api';
 import { agileAnalyticsApiRef } from '../../api/index.esm.js';
 import useAsync from 'react-use/lib/useAsync';
 import Alert from '@material-ui/lab/Alert';
@@ -9,12 +9,11 @@ import { AaSloServiceSloCard } from '../AaSloServiceSloCard/AaSloServiceSloCard.
 
 const AaSloServiceItem = ({
   timeperiod,
-  service
+  service,
+  orgHash,
+  apiKey
 }) => {
   const api = useApi(agileAnalyticsApiRef);
-  const config = useApi(configApiRef);
-  const orgHash = config.getString("agileAnalytics.orgHash");
-  const apiKey = config.getString("agileAnalytics.apiKey");
   const singleServicesState = useAsync(async () => {
     const response = await api.getSingleServiceData({
       orgHash,
@@ -40,7 +39,9 @@ const AaSloServiceItem = ({
         {
           timeperiod,
           service,
-          feature
+          feature,
+          orgHash,
+          apiKey
         }
       ) })) })
     }

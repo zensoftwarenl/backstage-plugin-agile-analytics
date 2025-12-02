@@ -249,7 +249,12 @@ function LeaderbordBodyRow({
                 position: 'relative',
               }}
             >
-              <img src={person?.photo} alt="User" className="userpic-kudos" />
+              <img
+                src={person?.photo}
+                alt="User"
+                className="userpic-kudos"
+                style={{ width: '40px', height: '40px' }}
+               />
             </Box>
 
             <p>{person?.user_name ? person.user_name : person?.email}</p>

@@ -167,7 +167,15 @@ function LeaderbordBodyRow({
                   overflow: "hidden",
                   position: "relative"
                 },
-                children: /* @__PURE__ */ jsx("img", { src: person?.photo, alt: "User", className: "userpic-kudos" })
+                children: /* @__PURE__ */ jsx(
+                  "img",
+                  {
+                    src: person?.photo,
+                    alt: "User",
+                    className: "userpic-kudos",
+                    style: { width: "40px", height: "40px" }
+                  }
+                )
               }
             ),
             /* @__PURE__ */ jsx("p", { children: person?.user_name ? person.user_name : person?.email })

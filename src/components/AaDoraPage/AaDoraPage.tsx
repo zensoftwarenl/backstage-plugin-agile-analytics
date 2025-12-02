@@ -10,11 +10,16 @@ import Alert from '@material-ui/lab/Alert';
 import { AaDoraChart } from '../AaDoraChart';
 import moment from 'moment';
 
-export const AaDoraPage = ({ timeperiod }: { timeperiod: Timeperiod }) => {
+export const AaDoraPage = ({
+  timeperiod,
+  orgHash,
+  apiKey,
+}: {
+  timeperiod: Timeperiod;
+  orgHash: string;
+  apiKey: string;
+}) => {
   const api = useApi(agileAnalyticsApiRef);
-  const config = useApi(configApiRef);
-  const orgHash = config.getString('agileAnalytics.orgHash');
-  const apiKey = config.getString('agileAnalytics.apiKey');
 
   // =======FILTER  SETUP========
   const reposState = useAsync(async (): Promise<any> => {
