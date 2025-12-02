@@ -2,7 +2,7 @@ import { jsx, jsxs } from 'react/jsx-runtime';
 import { useState, useEffect } from 'react';
 import { Progress } from '@backstage/core-components';
 import { Typography, Grid } from '@material-ui/core';
-import { useApi, configApiRef } from '@backstage/core-plugin-api';
+import { useApi } from '@backstage/core-plugin-api';
 import { agileAnalyticsApiRef } from '../../api/index.esm.js';
 import useAsync from 'react-use/lib/useAsync';
 import Alert from '@material-ui/lab/Alert';
@@ -11,11 +11,12 @@ import { AaKudosTotal } from '../AaKudosTotal/AaKudosTotal.esm.js';
 import { AaKudosLeaderboard } from '../AaKudosLeaderboard/AaKudosLeaderboard.esm.js';
 import { AaKudosChart } from '../AaKudosChart/AaKudosChart.esm.js';
 
-const AaKudosPage = ({ timeperiod }) => {
+const AaKudosPage = ({
+  timeperiod,
+  orgHash,
+  apiKey
+}) => {
   const api = useApi(agileAnalyticsApiRef);
-  const config = useApi(configApiRef);
-  const orgHash = config.getString("agileAnalytics.orgHash");
-  const apiKey = config.getString("agileAnalytics.apiKey");
   const { date_start, date_end } = timeperiod;
   const teamsDataState = useAsync(async () => {
     const response = await api.getTeamsData({
@@ -40,7 +41,13 @@ const AaKudosPage = ({ timeperiod }) => {
   }, [timeperiod]);
   const [activeTeam, setActiveTeam] = useState(null);
   const kudosLeaderBoardState = useAsync(async () => {
-    const response = await api.getTeamKudosLeaderBoard({
+    const response = activeTeam === "all" ? await api.getKudosLeaderBoard({
+      orgHash,
+      apiKey,
+      team: activeTeam ? activeTeam : "all",
+      date_end,
+      date_start
+    }) : await api.getTeamKudosLeaderBoard({
       orgHash,
       apiKey,
       team: activeTeam ? activeTeam : "all",
@@ -187,7 +194,9 @@ const AaKudosPage = ({ timeperiod }) => {
       {
         timeperiod,
         users: orgUsersState?.value,
-        activeTeam: activeTeam ? activeTeam : "all"
+        activeTeam: activeTeam ? activeTeam : "all",
+        orgHash,
+        apiKey
       }
     ) })
   ] });

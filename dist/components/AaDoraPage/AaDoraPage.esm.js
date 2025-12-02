@@ -2,18 +2,19 @@ import { jsx, jsxs } from 'react/jsx-runtime';
 import { useState, useEffect, useCallback } from 'react';
 import { Progress, InfoCard } from '@backstage/core-components';
 import { Grid, Chip } from '@material-ui/core';
-import { useApi, configApiRef } from '@backstage/core-plugin-api';
+import { useApi } from '@backstage/core-plugin-api';
 import { agileAnalyticsApiRef } from '../../api/index.esm.js';
 import useAsync from 'react-use/lib/useAsync';
 import Alert from '@material-ui/lab/Alert';
 import { AaDoraChart } from '../AaDoraChart/AaDoraChart.esm.js';
 import moment from 'moment';
 
-const AaDoraPage = ({ timeperiod }) => {
+const AaDoraPage = ({
+  timeperiod,
+  orgHash,
+  apiKey
+}) => {
   const api = useApi(agileAnalyticsApiRef);
-  const config = useApi(configApiRef);
-  const orgHash = config.getString("agileAnalytics.orgHash");
-  const apiKey = config.getString("agileAnalytics.apiKey");
   const reposState = useAsync(async () => {
     const response = await api.getReposData({
       orgHash,

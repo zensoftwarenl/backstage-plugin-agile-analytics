@@ -12,28 +12,37 @@ export const AaKudosChart = ({
   timeperiod,
   users,
   activeTeam,
+  orgHash,
+  apiKey,
 }: {
   timeperiod: Timeperiod;
   users: { data: User[] };
   activeTeam: string;
+  orgHash: string;
+  apiKey: string;
 }) => {
   const api = useApi(agileAnalyticsApiRef);
-  const config = useApi(configApiRef);
-  const orgHash = config.getString('agileAnalytics.orgHash');
-  const apiKey = config.getString('agileAnalytics.apiKey');
-
   const { date_end, date_start } = timeperiod;
 
   const kudosSankeyState = useAsync(async (): Promise<KudosChartResponse> => {
-    const response = await api.getTeamKudosSankeyData({
-      orgHash,
-      apiKey,
-      team: activeTeam ? activeTeam : 'all',
-      date_end,
-      date_start,
-    });
+    const response =
+      activeTeam === 'all'
+        ? await api.getKudosSankeyData({
+            orgHash,
+            apiKey,
+            team: activeTeam ? activeTeam : 'all',
+            date_end,
+            date_start,
+          })
+        : await api.getTeamKudosSankeyData({
+            orgHash,
+            apiKey,
+            team: activeTeam ? activeTeam : 'all',
+            date_end,
+            date_start,
+          });
     return response;
-  }, [timeperiod]);
+  }, [activeTeam, timeperiod]);
 
   const getChartHeight = () => {
     if (kudosSankeyState?.value?.length) {

@@ -22,8 +22,12 @@ import { AaKudosPage } from '../AaKudosPage';
 
 export const AaContentComponent = ({
   orgData,
+  orgHash,
+  apiKey,
 }: {
   orgData: OrganisationDataResponse;
+  orgHash: string;
+  apiKey: string;
 }) => {
   const [timeperiod, setTimeperiod] = useState({
     date_start: getStartDate(6, 'days'),
@@ -48,7 +52,9 @@ export const AaContentComponent = ({
         <Grid container spacing={3} direction="column" style={cardContentStyle}>
           <Grid item>
             <InfoCard title="Organisation's Details">
-              <StructuredMetadataTable metadata={overviewMetadata} />
+              <StructuredMetadataTable
+                metadata={overviewMetadata}
+              />
             </InfoCard>
           </Grid>
         </Grid>
@@ -59,7 +65,11 @@ export const AaContentComponent = ({
       content: (
         <Grid container spacing={3} direction="column">
           <Grid item>
-            <AaSprintInsightsPage timeperiod={timeperiod} />
+            <AaSprintInsightsPage
+              timeperiod={timeperiod}
+              orgHash={orgHash}
+              apiKey={apiKey}
+            />
           </Grid>
         </Grid>
       ),
@@ -69,7 +79,11 @@ export const AaContentComponent = ({
       content: (
         <Grid container spacing={3} direction="column">
           <Grid item>
-            <AaSlosPage timeperiod={timeperiod} />
+            <AaSlosPage
+              timeperiod={timeperiod}
+              orgHash={orgHash}
+              apiKey={apiKey}
+            />
           </Grid>
         </Grid>
       ),
@@ -79,7 +93,11 @@ export const AaContentComponent = ({
       content: (
         <Grid container spacing={3} direction="column">
           <Grid item>
-            <AaErrorBudgetsPage timeperiod={timeperiod} />
+            <AaErrorBudgetsPage
+              timeperiod={timeperiod}
+              orgHash={orgHash}
+              apiKey={apiKey}
+            />
           </Grid>
         </Grid>
       ),
@@ -88,7 +106,13 @@ export const AaContentComponent = ({
       label: 'DORA',
       content: (
         <Grid container spacing={3} direction="column">
-          <Grid item><AaDoraPage timeperiod={timeperiod} /></Grid>
+          <Grid item>
+            <AaDoraPage
+              timeperiod={timeperiod}
+              orgHash={orgHash}
+              apiKey={apiKey}
+            />
+          </Grid>
         </Grid>
       ),
     },
@@ -96,7 +120,13 @@ export const AaContentComponent = ({
       label: 'KUDOS',
       content: (
         <Grid container spacing={3} direction="column">
-          <Grid item><AaKudosPage timeperiod={timeperiod} /></Grid>
+          <Grid item>
+            <AaKudosPage
+              timeperiod={timeperiod}
+              orgHash={orgHash}
+              apiKey={apiKey}
+            />
+          </Grid>
         </Grid>
       ),
     },
@@ -104,7 +134,13 @@ export const AaContentComponent = ({
       label: 'STOCK',
       content: (
         <Grid container spacing={3} direction="column">
-          <Grid item><AaStockPage timeperiod={timeperiod} /></Grid>
+          <Grid item>
+            <AaStockPage
+              timeperiod={timeperiod}
+              orgHash={orgHash}
+              apiKey={apiKey}
+            />
+          </Grid>
         </Grid>
       ),
     },
@@ -112,7 +148,13 @@ export const AaContentComponent = ({
       label: 'LEAKS',
       content: (
         <Grid container spacing={3} direction="column">
-          <Grid item><AaLeaksPage timeperiod={timeperiod} /></Grid>
+          <Grid item>
+            <AaLeaksPage
+              timeperiod={timeperiod}
+              orgHash={orgHash}
+              apiKey={apiKey}
+            />
+          </Grid>
         </Grid>
       ),
     },
@@ -127,9 +169,9 @@ export const AaContentComponent = ({
           <Grid item>
             <Grid item>
               <AaTimeSelect
-              timeperiod={timeperiod}
-              setTimeperiod={setTimeperiod}
-            />
+                timeperiod={timeperiod}
+                setTimeperiod={setTimeperiod}
+              />
             </Grid>
           </Grid>
           <Grid item>
@@ -143,7 +185,9 @@ export const AaContentComponent = ({
                 ))}
               </TabList>
               {tabs?.map(tab => (
-                <TabPanel value={tab?.label} sx={{padding: 0}}>{tab?.content}</TabPanel>
+                <TabPanel value={tab?.label} sx={{ padding: 0 }}>
+                  {tab?.content}
+                </TabPanel>
               ))}
             </TabContext>
           </Grid>

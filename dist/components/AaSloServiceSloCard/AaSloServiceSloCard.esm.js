@@ -1,7 +1,7 @@
 import { jsx, jsxs } from 'react/jsx-runtime';
 import { Progress } from '@backstage/core-components';
 import { Typography, Card, Box, Divider, Grid } from '@material-ui/core';
-import { useApi, configApiRef } from '@backstage/core-plugin-api';
+import { useApi } from '@backstage/core-plugin-api';
 import { agileAnalyticsApiRef } from '../../api/index.esm.js';
 import useAsync from 'react-use/lib/useAsync';
 import Alert from '@material-ui/lab/Alert';
@@ -12,12 +12,11 @@ import moment from 'moment';
 const AaSloServiceSloCard = ({
   timeperiod,
   service,
-  feature
+  feature,
+  orgHash,
+  apiKey
 }) => {
   const api = useApi(agileAnalyticsApiRef);
-  const config = useApi(configApiRef);
-  const orgHash = config.getString("agileAnalytics.orgHash");
-  const apiKey = config.getString("agileAnalytics.apiKey");
   const { date_start, date_end } = timeperiod;
   const chartDataState = useAsync(async () => {
     const response = await api.getErrorBudgetChartData({

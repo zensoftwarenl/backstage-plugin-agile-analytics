@@ -17,17 +17,17 @@ import { AaErrorBudgetsChart } from '../AaErrorBudgetsChart';
 export const AaErrorBudgetsServiceItem = ({
   timeperiod,
   service,
-  deploymentsList
+  deploymentsList,
+  orgHash,
+  apiKey,
 }: {
   timeperiod: Timeperiod;
   service: Service;
-  deploymentsList: any[]
+  deploymentsList: any[];
+  orgHash: string;
+  apiKey: string;
 }) => {
   const api = useApi(agileAnalyticsApiRef);
-  const config = useApi(configApiRef);
-  const orgHash = config.getString('agileAnalytics.orgHash');
-  const apiKey = config.getString('agileAnalytics.apiKey');
-
   const { date_start: dateTimeStart, date_end: dateTimeEnd } = timeperiod;
 
   const singleServicesState =

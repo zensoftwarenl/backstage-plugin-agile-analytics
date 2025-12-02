@@ -11,13 +11,14 @@ import { AaSprintInsightsTable } from '../AaSprintInsightsTable';
 
 export const AaSprintInsightsPage = ({
   timeperiod,
+  orgHash,
+  apiKey,
 }: {
   timeperiod: Timeperiod;
+  orgHash: string;
+  apiKey: string;
 }) => {
   const api = useApi(agileAnalyticsApiRef);
-  const config = useApi(configApiRef);
-  const orgHash = config.getString('agileAnalytics.orgHash');
-  const apiKey = config.getString('agileAnalytics.apiKey');
 
   const siState = useAsync(async (): Promise<any> => {
     const response = await api.getSiData({

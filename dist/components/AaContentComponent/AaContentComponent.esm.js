@@ -16,7 +16,9 @@ import { AaErrorBudgetsPage } from '../AaErrorBudgetsPage/AaErrorBudgetsPage.esm
 import { AaKudosPage } from '../AaKudosPage/AaKudosPage.esm.js';
 
 const AaContentComponent = ({
-  orgData
+  orgData,
+  orgHash,
+  apiKey
 }) => {
   const [timeperiod, setTimeperiod] = useState({
     date_start: getStartDate(6, "days"),
@@ -35,35 +37,89 @@ const AaContentComponent = ({
   const tabs = [
     {
       label: "OVERVIEW",
-      content: /* @__PURE__ */ jsx(Grid, { container: true, spacing: 3, direction: "column", style: cardContentStyle, children: /* @__PURE__ */ jsx(Grid, { item: true, children: /* @__PURE__ */ jsx(InfoCard, { title: "Organisation's Details", children: /* @__PURE__ */ jsx(StructuredMetadataTable, { metadata: overviewMetadata }) }) }) })
+      content: /* @__PURE__ */ jsx(Grid, { container: true, spacing: 3, direction: "column", style: cardContentStyle, children: /* @__PURE__ */ jsx(Grid, { item: true, children: /* @__PURE__ */ jsx(InfoCard, { title: "Organisation's Details", children: /* @__PURE__ */ jsx(
+        StructuredMetadataTable,
+        {
+          metadata: overviewMetadata
+        }
+      ) }) }) })
     },
     {
       label: "SPRINT INSIGHTS",
-      content: /* @__PURE__ */ jsx(Grid, { container: true, spacing: 3, direction: "column", children: /* @__PURE__ */ jsx(Grid, { item: true, children: /* @__PURE__ */ jsx(AaSprintInsightsPage, { timeperiod }) }) })
+      content: /* @__PURE__ */ jsx(Grid, { container: true, spacing: 3, direction: "column", children: /* @__PURE__ */ jsx(Grid, { item: true, children: /* @__PURE__ */ jsx(
+        AaSprintInsightsPage,
+        {
+          timeperiod,
+          orgHash,
+          apiKey
+        }
+      ) }) })
     },
     {
       label: "SLOS",
-      content: /* @__PURE__ */ jsx(Grid, { container: true, spacing: 3, direction: "column", children: /* @__PURE__ */ jsx(Grid, { item: true, children: /* @__PURE__ */ jsx(AaSlosPage, { timeperiod }) }) })
+      content: /* @__PURE__ */ jsx(Grid, { container: true, spacing: 3, direction: "column", children: /* @__PURE__ */ jsx(Grid, { item: true, children: /* @__PURE__ */ jsx(
+        AaSlosPage,
+        {
+          timeperiod,
+          orgHash,
+          apiKey
+        }
+      ) }) })
     },
     {
       label: "ERROR BUDGETS",
-      content: /* @__PURE__ */ jsx(Grid, { container: true, spacing: 3, direction: "column", children: /* @__PURE__ */ jsx(Grid, { item: true, children: /* @__PURE__ */ jsx(AaErrorBudgetsPage, { timeperiod }) }) })
+      content: /* @__PURE__ */ jsx(Grid, { container: true, spacing: 3, direction: "column", children: /* @__PURE__ */ jsx(Grid, { item: true, children: /* @__PURE__ */ jsx(
+        AaErrorBudgetsPage,
+        {
+          timeperiod,
+          orgHash,
+          apiKey
+        }
+      ) }) })
     },
     {
       label: "DORA",
-      content: /* @__PURE__ */ jsx(Grid, { container: true, spacing: 3, direction: "column", children: /* @__PURE__ */ jsx(Grid, { item: true, children: /* @__PURE__ */ jsx(AaDoraPage, { timeperiod }) }) })
+      content: /* @__PURE__ */ jsx(Grid, { container: true, spacing: 3, direction: "column", children: /* @__PURE__ */ jsx(Grid, { item: true, children: /* @__PURE__ */ jsx(
+        AaDoraPage,
+        {
+          timeperiod,
+          orgHash,
+          apiKey
+        }
+      ) }) })
     },
     {
       label: "KUDOS",
-      content: /* @__PURE__ */ jsx(Grid, { container: true, spacing: 3, direction: "column", children: /* @__PURE__ */ jsx(Grid, { item: true, children: /* @__PURE__ */ jsx(AaKudosPage, { timeperiod }) }) })
+      content: /* @__PURE__ */ jsx(Grid, { container: true, spacing: 3, direction: "column", children: /* @__PURE__ */ jsx(Grid, { item: true, children: /* @__PURE__ */ jsx(
+        AaKudosPage,
+        {
+          timeperiod,
+          orgHash,
+          apiKey
+        }
+      ) }) })
     },
     {
       label: "STOCK",
-      content: /* @__PURE__ */ jsx(Grid, { container: true, spacing: 3, direction: "column", children: /* @__PURE__ */ jsx(Grid, { item: true, children: /* @__PURE__ */ jsx(AaStockPage, { timeperiod }) }) })
+      content: /* @__PURE__ */ jsx(Grid, { container: true, spacing: 3, direction: "column", children: /* @__PURE__ */ jsx(Grid, { item: true, children: /* @__PURE__ */ jsx(
+        AaStockPage,
+        {
+          timeperiod,
+          orgHash,
+          apiKey
+        }
+      ) }) })
     },
     {
       label: "LEAKS",
-      content: /* @__PURE__ */ jsx(Grid, { container: true, spacing: 3, direction: "column", children: /* @__PURE__ */ jsx(Grid, { item: true, children: /* @__PURE__ */ jsx(AaLeaksPage, { timeperiod }) }) })
+      content: /* @__PURE__ */ jsx(Grid, { container: true, spacing: 3, direction: "column", children: /* @__PURE__ */ jsx(Grid, { item: true, children: /* @__PURE__ */ jsx(
+        AaLeaksPage,
+        {
+          timeperiod,
+          orgHash,
+          apiKey
+        }
+      ) }) })
     }
   ];
   const [selectedTab, setSelectedTab] = useState(tabs[0]?.label);

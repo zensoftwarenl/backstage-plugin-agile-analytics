@@ -1,4 +1,3 @@
-
 import {
   Header,
   Page,
@@ -16,6 +15,8 @@ export const AaMainPageComponent = () => {
   const config = useApi(configApiRef);
   const orgHash = config.getString('agileAnalytics.orgHash');
   const apiKey = config.getString('agileAnalytics.apiKey');
+
+  
 
   const organisationState = useAsync(async (): Promise<any> => {
     const response = await api.getOrganisationData({
@@ -48,7 +49,11 @@ export const AaMainPageComponent = () => {
         <Alert severity="error">{organisationState?.error.message}</Alert>
       ) : null}
       {!organisationState.loading && !organisationState.error ? (
-        <AaContentComponent orgData={organisationState?.value} />
+        <AaContentComponent
+          orgData={organisationState?.value}
+          orgHash={orgHash}
+          apiKey={apiKey}
+        />
       ) : null}
     </Page>
   );

@@ -19,11 +19,16 @@ import { AaKudosTotal } from '../AaKudosTotal';
 import { AaKudosLeaderboard } from '../AaKudosLeaderboard';
 import { AaKudosChart } from '../AaKudosChart';
 
-export const AaKudosPage = ({ timeperiod }: { timeperiod: Timeperiod }) => {
+export const AaKudosPage = ({
+  timeperiod,
+  orgHash,
+  apiKey,
+}: {
+  timeperiod: Timeperiod;
+  orgHash: string;
+  apiKey: string;
+}) => {
   const api = useApi(agileAnalyticsApiRef);
-  const config = useApi(configApiRef);
-  const orgHash = config.getString('agileAnalytics.orgHash');
-  const apiKey = config.getString('agileAnalytics.apiKey');
 
   const { date_start, date_end } = timeperiod;
 
@@ -56,13 +61,22 @@ export const AaKudosPage = ({ timeperiod }: { timeperiod: Timeperiod }) => {
 
   const kudosLeaderBoardState =
     useAsync(async (): Promise<TeamKudosLeaderBoardResponse> => {
-      const response = await api.getTeamKudosLeaderBoard({
-        orgHash,
-        apiKey,
-        team: activeTeam ? activeTeam : 'all',
-        date_end,
-        date_start,
-      });
+      const response =
+        activeTeam === 'all'
+          ? await api.getKudosLeaderBoard({
+              orgHash,
+              apiKey,
+              team: activeTeam ? activeTeam : 'all',
+              date_end,
+              date_start,
+            })
+          : await api.getTeamKudosLeaderBoard({
+              orgHash,
+              apiKey,
+              team: activeTeam ? activeTeam : 'all',
+              date_end,
+              date_start,
+            });
       return response;
     }, [activeTeam, timeperiod]);
 
@@ -199,7 +213,7 @@ export const AaKudosPage = ({ timeperiod }: { timeperiod: Timeperiod }) => {
   }
 
   return (
-    <Grid container spacing={3} alignItems="stretch" >
+    <Grid container spacing={3} alignItems="stretch">
       <Grid item xs={4}>
         <AaKudosLast
           users={orgUsersState?.value}
@@ -235,6 +249,8 @@ export const AaKudosPage = ({ timeperiod }: { timeperiod: Timeperiod }) => {
           timeperiod={timeperiod}
           users={orgUsersState?.value}
           activeTeam={activeTeam ? activeTeam : 'all'}
+          orgHash={orgHash}
+          apiKey={apiKey}
         />
       </Grid>
     </Grid>

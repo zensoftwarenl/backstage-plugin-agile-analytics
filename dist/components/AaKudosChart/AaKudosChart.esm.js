@@ -2,7 +2,7 @@ import { jsx } from 'react/jsx-runtime';
 import { Progress } from '@backstage/core-components';
 import { Typography, Box } from '@material-ui/core';
 import Chart from 'react-google-charts';
-import { useApi, configApiRef } from '@backstage/core-plugin-api';
+import { useApi } from '@backstage/core-plugin-api';
 import { agileAnalyticsApiRef } from '../../api/index.esm.js';
 import useAsync from 'react-use/lib/useAsync';
 import Alert from '@material-ui/lab/Alert';
@@ -10,15 +10,20 @@ import Alert from '@material-ui/lab/Alert';
 const AaKudosChart = ({
   timeperiod,
   users,
-  activeTeam
+  activeTeam,
+  orgHash,
+  apiKey
 }) => {
   const api = useApi(agileAnalyticsApiRef);
-  const config = useApi(configApiRef);
-  const orgHash = config.getString("agileAnalytics.orgHash");
-  const apiKey = config.getString("agileAnalytics.apiKey");
   const { date_end, date_start } = timeperiod;
   const kudosSankeyState = useAsync(async () => {
-    const response = await api.getTeamKudosSankeyData({
+    const response = activeTeam === "all" ? await api.getKudosSankeyData({
+      orgHash,
+      apiKey,
+      team: activeTeam ? activeTeam : "all",
+      date_end,
+      date_start
+    }) : await api.getTeamKudosSankeyData({
       orgHash,
       apiKey,
       team: activeTeam ? activeTeam : "all",
@@ -26,7 +31,7 @@ const AaKudosChart = ({
       date_start
     });
     return response;
-  }, [timeperiod]);
+  }, [activeTeam, timeperiod]);
   const getChartHeight = () => {
     if (kudosSankeyState?.value?.length) {
       const senders = new Set(

@@ -1,7 +1,7 @@
 import { jsx } from 'react/jsx-runtime';
 import { Progress, InfoCard } from '@backstage/core-components';
 import { Typography } from '@material-ui/core';
-import { useApi, configApiRef } from '@backstage/core-plugin-api';
+import { useApi } from '@backstage/core-plugin-api';
 import { agileAnalyticsApiRef } from '../../api/index.esm.js';
 import useAsync from 'react-use/lib/useAsync';
 import Alert from '@material-ui/lab/Alert';
@@ -10,12 +10,11 @@ import { AaErrorBudgetsChart } from '../AaErrorBudgetsChart/AaErrorBudgetsChart.
 const AaErrorBudgetsServiceItem = ({
   timeperiod,
   service,
-  deploymentsList
+  deploymentsList,
+  orgHash,
+  apiKey
 }) => {
   const api = useApi(agileAnalyticsApiRef);
-  const config = useApi(configApiRef);
-  const orgHash = config.getString("agileAnalytics.orgHash");
-  const apiKey = config.getString("agileAnalytics.apiKey");
   const { date_start: dateTimeStart, date_end: dateTimeEnd } = timeperiod;
   const singleServicesState = useAsync(async () => {
     const response = await api.getSingleServiceData({

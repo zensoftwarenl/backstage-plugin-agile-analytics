@@ -32,7 +32,14 @@ const AaMainPageComponent = () => {
     ),
     organisationState?.loading ? /* @__PURE__ */ jsx(Progress, {}) : null,
     organisationState?.error ? /* @__PURE__ */ jsx(Alert, { severity: "error", children: organisationState?.error.message }) : null,
-    !organisationState.loading && !organisationState.error ? /* @__PURE__ */ jsx(AaContentComponent, { orgData: organisationState?.value }) : null
+    !organisationState.loading && !organisationState.error ? /* @__PURE__ */ jsx(
+      AaContentComponent,
+      {
+        orgData: organisationState?.value,
+        orgHash,
+        apiKey
+      }
+    ) : null
   ] });
 };
 

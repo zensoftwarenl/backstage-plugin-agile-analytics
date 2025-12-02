@@ -8,11 +8,16 @@ import useAsync from 'react-use/lib/useAsync';
 import { AaSloServiceItem } from '../AaSloServiceItem';
 import Alert from '@material-ui/lab/Alert';
 
-export const AaSlosPage = ({ timeperiod }: { timeperiod: Timeperiod }) => {
+export const AaSlosPage = ({
+  timeperiod,
+  orgHash,
+  apiKey,
+}: {
+  timeperiod: Timeperiod;
+  orgHash: string;
+  apiKey: string;
+}) => {
   const api = useApi(agileAnalyticsApiRef);
-  const config = useApi(configApiRef);
-  const orgHash = config.getString('agileAnalytics.orgHash');
-  const apiKey = config.getString('agileAnalytics.apiKey');
 
   const servicesState = useAsync(async (): Promise<ServicesDataResponse> => {
     const response = await api.getServicesData({
@@ -34,7 +39,9 @@ export const AaSlosPage = ({ timeperiod }: { timeperiod: Timeperiod }) => {
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
       {servicesState?.value?.map(item => (
         <Box sx={{ marginBottom: '24px' }}>
-          <AaSloServiceItem timeperiod={timeperiod} service={item} />
+          <AaSloServiceItem timeperiod={timeperiod} service={item}
+            orgHash={orgHash}
+            apiKey={apiKey } />
         </Box>
       ))}
     </Box>

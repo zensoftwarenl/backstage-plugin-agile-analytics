@@ -15,14 +15,15 @@ import { AaSloServiceSloCard } from '../AaSloServiceSloCard';
 export const AaSloServiceItem = ({
   timeperiod,
   service,
+  orgHash,
+  apiKey,
 }: {
   timeperiod: Timeperiod;
   service: Service;
+  orgHash: string;
+  apiKey: string;
 }) => {
   const api = useApi(agileAnalyticsApiRef);
-  const config = useApi(configApiRef);
-  const orgHash = config.getString('agileAnalytics.orgHash');
-  const apiKey = config.getString('agileAnalytics.apiKey');
 
   const singleServicesState =
     useAsync(async (): Promise<SingleServiceDataResponse> => {
@@ -56,6 +57,8 @@ export const AaSloServiceItem = ({
                 timeperiod={timeperiod}
                 service={service}
                 feature={feature}
+                orgHash={orgHash}
+                apiKey={apiKey}
               />
             </Grid>
           ))}
