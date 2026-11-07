@@ -55,7 +55,7 @@ Then:
 ```bash
 yarn install && yarn prettier --write plugins
 yarn tsc && yarn lint:all && yarn check:zen && yarn test:all && yarn build && yarn pack:check
-yarn changeset          # one entry per change customers notice
+yarn changeset          # major/minor/patch, one entry per change customers notice
 ```
 
 Commit with the in-tree range in the message:
@@ -140,20 +140,43 @@ plugins would shrink the delta and make syncs nearly conflict-free.
   - Update the "Requirements" in the README.
 - **Don't hand-edit `sync/state.json`,** except to recover from a bad sync.
 
-## Release
+## Release (semantic versioning)
 
-1. Merge the sync PR(s) with their changesets.
-2. On a branch, run `yarn version-packages`. It bumps all three
-   packages and writes the CHANGELOGs. Open a PR and merge it.
-3. Tag the merge commit and push the tag:
-   `git tag vX.Y.Z && git push origin vX.Y.Z`.
-4. `.github/workflows/publish.yml` checks that the tag matches every
-   package version, runs all checks, and publishes the three packages with
-   npm provenance:
-   - The order is common, backend, frontend.
-   - Versions already on npm are skipped, so the workflow can be re-run.
-   - A prerelease tag (`v2.1.0-rc.0`) publishes under the `next` dist-tag.
-   - It needs the `NPM_TOKEN` secret in the `npm` environment.
+The version comes from changesets, not from PR titles or commit messages.
 
-Ask a maintainer before pushing tags, publishing by hand or running
+1. **Every PR that changes a package adds a changeset.** Run
+   `yarn changeset`, pick the bump and write the line customers will read
+   in the CHANGELOG:
+
+   - `major`: something breaks for installs, e.g. a removed export, a
+     renamed config key or a new required annotation.
+   - `minor`: a new feature or option.
+   - `patch`: a fix.
+
+   CI fails a PR that changes `plugins/*` without one. For an internal-only
+   change, use `yarn changeset --empty`.
+
+2. **On every merge to `main`, `.github/workflows/release.yml` updates the
+   "Version Packages" PR.** It bumps the shared version and writes the
+   three CHANGELOGs, and starts CI on that PR. Review it like any other PR
+   and merge it when you want to release.
+3. **That merge brings a version that isn't on npm yet**, so the
+   _Publish to npm_ job starts. It waits for approval in the `npm`
+   environment. Once approved, it:
+
+   - runs all checks
+   - publishes the three packages with npm provenance (`changeset publish`
+     skips versions already on npm, so it can be re-run)
+   - creates the `vX.Y.Z` tag and GitHub release
+
+   It needs the `NPM_TOKEN` secret in the `npm` environment.
+
+For a prerelease, run `yarn changeset pre enter next` on a branch first.
+Changesets then versions as `X.Y.Z-next.N`, and the GitHub release is
+marked as a prerelease.
+
+Repo rules: `main` only changes through PRs with green CI, and `v*` tags
+can't be moved or deleted.
+
+Ask a maintainer before approving a publish, publishing by hand or running
 `npm deprecate`.

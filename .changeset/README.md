@@ -1,6 +1,7 @@
 # Changesets
 
-Add one with `yarn changeset` for every change customers notice. The three
-packages are versioned together (`fixed` in `config.json`). `yarn
-version-packages` bumps the versions and writes the changelogs. See AGENTS.md
-for the release steps.
+Every PR that changes a package adds one with `yarn changeset`: major, minor
+or patch, and a line for the CHANGELOG. CI checks for it. The three packages
+are versioned together (`fixed` in `config.json`). The release workflow turns
+pending changesets into a "Version Packages" PR. See AGENTS.md for the release
+steps.

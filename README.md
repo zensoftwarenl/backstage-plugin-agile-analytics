@@ -219,9 +219,13 @@ To run the plugin locally with demo data, run `yarn start` in
 `plugins/agile-analytics-backend` and in `plugins/agile-analytics`. Both
 read the root `app-config.yaml`.
 
-Releases: add a changeset with `yarn changeset`. The three packages share
-one version. Pushing a `vX.Y.Z` tag publishes them to npm, see
-[`.github/workflows/publish.yml`](.github/workflows/publish.yml).
+Releases follow semantic versioning with
+[Changesets](https://github.com/changesets/changesets):
+
+- Each PR that changes a package adds a changeset with `yarn changeset`.
+- The release workflow keeps a "Version Packages" PR up to date.
+- Merging that PR publishes the three packages, which share one version,
+  to npm. See [AGENTS.md](AGENTS.md#release-semantic-versioning).
 
 ZEN Software develops the plugin in its own Backstage first and syncs it
 here. [AGENTS.md](AGENTS.md) describes how.
