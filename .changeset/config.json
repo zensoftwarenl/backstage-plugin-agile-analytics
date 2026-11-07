@@ -1,0 +1,17 @@
+{
+  "$schema": "https://unpkg.com/@changesets/config@3.0.0/schema.json",
+  "changelog": "@changesets/cli/changelog",
+  "commit": false,
+  "fixed": [
+    [
+      "@zensoftwarenl/backstage-plugin-agile-analytics",
+      "@zensoftwarenl/backstage-plugin-agile-analytics-backend",
+      "@zensoftwarenl/backstage-plugin-agile-analytics-common"
+    ]
+  ],
+  "linked": [],
+  "access": "public",
+  "baseBranch": "main",
+  "updateInternalDependencies": "patch",
+  "ignore": []
+}

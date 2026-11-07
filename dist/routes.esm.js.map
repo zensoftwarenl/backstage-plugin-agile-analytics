@@ -1,1 +1,0 @@
-{"version":3,"file":"routes.esm.js","sources":["../src/routes.ts"],"sourcesContent":["import { createRouteRef } from '@backstage/core-plugin-api';\r\n\r\nexport const rootRouteRef = createRouteRef({\r\n  id: 'agile-analytics',\r\n});\r\n"],"names":[],"mappings":";;AAEO,MAAM,eAAe,cAAA,CAAe;AAAA,EACzC,EAAA,EAAI;AACN,CAAC;;;;"}

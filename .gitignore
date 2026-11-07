@@ -1,7 +1,10 @@
+node_modules/
+dist/
+dist-types/
+coverage/
+*.tgz
 .idea/
-**/node_modules
-*.local.yaml
-package-lock.json
-.eslintrc.js
+.vscode/
 .env
-app-config.yaml
+*.local.yaml
+.DS_Store

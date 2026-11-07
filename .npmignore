@@ -1,8 +1,0 @@
-.gitignore
-.idea/
-**/node_modules
-*.local.yaml
-package-lock.json
-package.json-prepack
-.eslintrc.js
-.env

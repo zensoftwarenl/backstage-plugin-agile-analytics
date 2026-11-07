@@ -1,0 +1,6 @@
+dist
+dist-types
+coverage
+.vscode
+CHANGELOG.md
+.changeset/*.md
