@@ -1,0 +1,15 @@
+# Keeps the GitHub Actions in the workflows up to date. npm dependencies are
+# not bumped here: they follow the in-tree plugins, and with them the
+# Backstage release, through the sync (see AGENTS.md). Dependabot security
+# updates for npm are on in the repo settings and need no config.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ['*']
+    commit-message:
+      prefix: ci
