@@ -1,0 +1,260 @@
+{
+  "_comment": "Renames applied to every in-tree file before it is merged into this repo, in order. See AGENTS.md. 'files' limits a rule to paths ending in one of them; 'regex' rules use JavaScript RegExp syntax with the g flag.",
+  "rules": [
+    {
+      "from": "@internal/backstage-plugin-agile-analytics",
+      "to": "@zensoftwarenl/backstage-plugin-agile-analytics"
+    },
+    {
+      "from": "e.g. `zensoftwarenl/agile`",
+      "to": "e.g. `acme/agile`",
+      "files": ["src/format.ts"]
+    },
+    {
+      "from": "([^a-z])zen/",
+      "to": "$1acme/",
+      "regex": true,
+      "files": [".test.ts", ".test.tsx"]
+    },
+    {
+      "from": "Zen/API",
+      "to": "Acme/API",
+      "files": [".test.ts"]
+    },
+    {
+      "from": "'Zen Software'",
+      "to": "'Acme Robotics'",
+      "files": [".test.ts", ".test.tsx"]
+    },
+    {
+      "from": "'Zen'",
+      "to": "'Acme'",
+      "files": [".test.ts", ".test.tsx"]
+    },
+    {
+      "from": "ZEN-1",
+      "to": "ACME-1",
+      "files": [".test.ts", ".test.tsx"]
+    },
+    {
+      "from": "Made-up Agile Analytics data of Pied Piper, for the demo portal\n * (app-config.demo.yaml, `demo.enabled`). The teams, repositories and\n * services match catalog/demo.",
+      "to": "Made-up Agile Analytics data of Acme Robotics, served when\n * `agileAnalytics.demo` is true, to try the plugin without an Agile Analytics\n * account.",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "SIMD path for the middle-out entropy coder",
+      "to": "SIMD path for the route cost function",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "Weissman score regression check in CI",
+      "to": "Path cost regression check in CI",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "Faster dictionary warm-up for video",
+      "to": "Faster map warm-up at boot",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "Drop the Nucleus compatibility shim",
+      "to": "Drop the legacy map compatibility shim",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "Shard the PiperCoin ledger before the ICO",
+      "to": "Shard the telemetry ledger before the fleet doubles",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "Peer scoring for flaky phones",
+      "to": "Peer scoring for flaky robots",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "PiperCoin: batch ledger writes",
+      "to": "Telemetry: batch ledger writes",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "Box firmware: OTA rollback",
+      "to": "Robot firmware: OTA rollback",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "Compressed video messages",
+      "to": "Live delivery tracking",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "Dark mode for PiperChat web",
+      "to": "Dark mode for the web app",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "Ingest PiperChat events in batches",
+      "to": "Ingest robot events in batches",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "Daily Weissman leaderboard",
+      "to": "Daily delivery leaderboard",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "PiperChat API requests without a 5xx",
+      "to": "App API requests without a 5xx",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "piedpiper.com accounts",
+      "to": "acme.example accounts",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "piedpiper.com pages served",
+      "to": "acme.example pages served",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "middle-out-core",
+      "to": "path-planner-core",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "weissman-bench",
+      "to": "planner-bench",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "transcoder-worker",
+      "to": "map-tile-worker",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "nucleus-compat",
+      "to": "legacy-map-compat",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "pipernet-node",
+      "to": "fleet-agent",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "pipernet-gateway",
+      "to": "fleet-gateway",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "piper-coin-ledger",
+      "to": "telemetry-ledger",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "the-box-firmware",
+      "to": "robot-firmware",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "piperchat-",
+      "to": "app-",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "piedpiper-com",
+      "to": "acme-website",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "weissman-leaderboard",
+      "to": "delivery-leaderboard",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "conjoined-triangles",
+      "to": "old-campaign-site",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "piedpiper/",
+      "to": "acme/",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "pipernet",
+      "to": "fleet",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "PiperNet",
+      "to": "Fleet",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "compression",
+      "to": "navigation",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "Compression",
+      "to": "Navigation",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "PIEDPIPER",
+      "to": "ACME",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "Pied Piper",
+      "to": "Acme Robotics",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "PIPE-",
+      "to": "ACME-",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "Richard Hendricks",
+      "to": "Alex Morgan",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "Bertram Gilfoyle",
+      "to": "Jordan Blake",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "Dinesh Chugtai",
+      "to": "Ravi Kapoor",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "Monica Hall",
+      "to": "Sofia Marquez",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "Jared Dunn",
+      "to": "Daniel Price",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "Nelson Bighetti",
+      "to": "Chris Novak",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "Erlich Bachman",
+      "to": "Oliver Grant",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "git@gitlab.com:",
+      "to": "git@github.com:",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    }
+  ]
+}
