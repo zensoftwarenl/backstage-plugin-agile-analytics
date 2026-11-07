@@ -175,6 +175,10 @@ For a prerelease, run `yarn changeset pre enter next` on a branch first.
 Changesets then versions as `X.Y.Z-next.N`, and the GitHub release is
 marked as a prerelease.
 
+Dependabot only bumps GitHub Actions, weekly. It also opens security fixes
+for npm. When a security fix changes a `plugins/*/package.json`, add a
+`patch` changeset to its PR, so the fix gets released.
+
 Repo rules: `main` only changes through PRs with green CI, and `v*` tags
 can't be moved or deleted.
 
