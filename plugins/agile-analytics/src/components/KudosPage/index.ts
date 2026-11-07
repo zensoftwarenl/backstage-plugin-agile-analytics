@@ -1,0 +1,1 @@
+export { KudosPage } from './KudosPage';

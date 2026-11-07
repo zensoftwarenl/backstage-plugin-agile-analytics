@@ -37,6 +37,11 @@
       "files": [".test.ts", ".test.tsx"]
     },
     {
+      "from": "`ZEN-${i}`",
+      "to": "`ACME-${i}`",
+      "files": [".test.ts"]
+    },
+    {
       "from": "Made-up Agile Analytics data of Pied Piper, for the demo portal\n * (app-config.demo.yaml, `demo.enabled`). The teams, repositories and\n * services match catalog/demo.",
       "to": "Made-up Agile Analytics data of Acme Robotics, served when\n * `agileAnalytics.demo` is true, to try the plugin without an Agile Analytics\n * account.",
       "files": ["src/DemoAgileAnalyticsClient.ts"]
@@ -174,6 +179,16 @@
     {
       "from": "conjoined-triangles",
       "to": "old-campaign-site",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "https://piedpiper.atlassian.net/browse/",
+      "to": "https://jira.acme.example/browse/",
+      "files": ["src/DemoAgileAnalyticsClient.ts"]
+    },
+    {
+      "from": "PIPER-",
+      "to": "ACME-",
       "files": ["src/DemoAgileAnalyticsClient.ts"]
     },
     {

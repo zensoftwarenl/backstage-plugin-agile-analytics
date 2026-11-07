@@ -358,6 +358,39 @@ describe('agile-analytics backend', () => {
     );
   });
 
+  it('names who gave kudos to whom, without their e-mail addresses', async () => {
+    await createApp();
+    fetchMock.mockImplementation(async url =>
+      String(url).includes('settings/users')
+        ? jsonResponse([
+            { hash: 'U1', user_name: 'Ada', email: 'ada@example.com' },
+            { hash: 'U2', user_name: 'Linus', email: 'linus@example.com' },
+          ])
+        : jsonResponse([
+            ['U1', 'U2 ', 7],
+            ['U3', 'U1 ', 1],
+            ['U2', 'U1', 0],
+          ]),
+    );
+
+    const response = await request(app).get('/kudos/flows?days=30&team=t1');
+
+    expect(response.body).toEqual({
+      flows: [
+        { from: 'Ada', to: 'Linus', kudos: 7 },
+        // A hash without a known user keeps its hash
+        { from: 'U3', to: 'Ada', kudos: 1 },
+      ],
+    });
+    expect(JSON.stringify(response.body)).not.toMatch(/example\.com/);
+    expect(
+      fetchMock.mock.calls.map(([url]) => new URL(String(url)).pathname),
+    ).toEqual([
+      '/ORG1/kudos/teams/t1/sankey_diagram/',
+      '/ORG1/settings/users/',
+    ]);
+  });
+
   it('passes the sprint report and hours through', async () => {
     await createApp();
     fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
@@ -370,6 +403,155 @@ describe('agile-analytics backend', () => {
     expect(fetchMock.mock.calls.map(([url]) => String(url))).toEqual([
       'https://api.prod.agileanalytics.cloud/ORG1/overview/sprints/',
       'https://api.prod.agileanalytics.cloud/ORG1/overview/hours-investment/',
+    ]);
+  });
+
+  it('adds up the Sprint Insights pages and keeps the tickets back', async () => {
+    await createApp();
+    const tickets = (n: number) =>
+      Array.from({ length: n }, (_, i) => ({
+        key: `ACME-${i}`,
+        summary: 'Secret plans',
+        assignee: 'ada@example.com',
+      }));
+    fetchMock
+      .mockResolvedValueOnce(
+        jsonResponse({
+          features: 300,
+          not_features: 200,
+          tickets: tickets(500),
+          time_split: { feature: 40.5, 'not feature': 10 },
+        }),
+      )
+      .mockResolvedValueOnce(
+        jsonResponse({
+          features: 2,
+          not_features: 1,
+          tickets: tickets(3),
+          time_split: { feature: 1.5 },
+        }),
+      );
+
+    const response = await request(app).get('/sprints/tickets?days=30&team=t1');
+
+    expect(response.body).toEqual({
+      features: 302,
+      notFeatures: 201,
+      featureHours: 42,
+      notFeatureHours: 10,
+      truncated: false,
+    });
+    expect(JSON.stringify(response.body)).not.toMatch(/Secret|example/);
+    const urls = fetchMock.mock.calls.map(([url]) => new URL(String(url)));
+    expect(urls.map(url => url.pathname)).toEqual([
+      '/ORG1/si/t1/',
+      '/ORG1/si/t1/',
+    ]);
+    expect(urls.map(url => url.searchParams.get('offset'))).toEqual([
+      '0',
+      '500',
+    ]);
+  });
+
+  it('ranks people by AI-assisted work without their merge requests', async () => {
+    await createApp();
+    fetchMock.mockResolvedValue(
+      jsonResponse({
+        enabled: true,
+        vampire_share: 0.9,
+        people: [
+          {
+            rank: 1,
+            name: 'Ada',
+            user_hash: 'U1',
+            ai_assisted: 4,
+            merge_requests: 5,
+            share: 0.8,
+            merged: [{ title: 'Secret plans', url: 'https://example.com' }],
+          },
+        ],
+      }),
+    );
+
+    const response = await request(app).get('/ai/leaderboard?days=14');
+
+    expect(response.body).toEqual({
+      enabled: true,
+      people: [
+        { rank: 1, name: 'Ada', ai_assisted: 4, merge_requests: 5, share: 0.8 },
+      ],
+    });
+  });
+
+  it('compares the teams by their scores only', async () => {
+    await createApp();
+    fetchMock.mockResolvedValue(
+      jsonResponse([
+        {
+          team: { hash: 't1', name: 'Core', members: 4, services: 2 },
+          total: 70,
+          pillars: { dev: 80, ops: 60, agile: null },
+          metrics: [{ id: 'kudos', score: 80 }],
+          previous: { total: 65, pillars: { dev: 70 }, metrics: [] },
+        },
+      ]),
+    );
+
+    const response = await request(app).get('/teams/health?days=30');
+
+    expect(response.body).toEqual([
+      {
+        team: { hash: 't1', name: 'Core', members: 4 },
+        total: 70,
+        pillars: { dev: 80, ops: 60, agile: null },
+        previous: { total: 65, pillars: { dev: 70 } },
+      },
+    ]);
+    expect(new URL(String(fetchMock.mock.calls[0][0])).pathname).toBe(
+      '/ORG1/teams/health/',
+    );
+  });
+
+  it('lists the insights without who changed them', async () => {
+    await createApp();
+    fetchMock.mockResolvedValue(
+      jsonResponse({
+        insights: [
+          {
+            id: 7,
+            area: 'delivery',
+            priority: 'must',
+            status: 'new',
+            text: { en: 'Deploy more often' },
+            last_seen_at: '2026-11-06',
+            in_latest_report: true,
+            team_hash: null,
+            history: [{ by: 'ada@example.com', status: 'new' }],
+            jira_issue: {
+              key: 'ACME-1',
+              url: 'https://jira/ACME-1',
+              assignee: 'ada@example.com',
+            },
+          },
+        ],
+        jira: { connected: true },
+      }),
+    );
+
+    const response = await request(app).get('/insights');
+
+    expect(response.body).toEqual([
+      {
+        id: 7,
+        area: 'delivery',
+        priority: 'must',
+        status: 'new',
+        text: { en: 'Deploy more often' },
+        last_seen_at: '2026-11-06',
+        in_latest_report: true,
+        team_hash: null,
+        jira_issue: { key: 'ACME-1', url: 'https://jira/ACME-1' },
+      },
     ]);
   });
 

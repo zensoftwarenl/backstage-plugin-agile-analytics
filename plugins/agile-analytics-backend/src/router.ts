@@ -86,8 +86,16 @@ export async function createRouter({
     res.json(await client.getTeamHealth(teamHash(req.params.teamHash)!));
   });
 
+  router.get('/teams/health', async (req, res) => {
+    res.json(await client.getTeamComparison(period(req)));
+  });
+
   router.get('/signals', async (_req, res) => {
     res.json(await client.getSignals());
+  });
+
+  router.get('/insights', async (_req, res) => {
+    res.json(await client.getInsights());
   });
 
   router.get('/slos', async (_req, res) => {
@@ -120,6 +128,10 @@ export async function createRouter({
     res.json(body);
   });
 
+  router.get('/dora/ci-queue', async (req, res) => {
+    res.json(await client.getCiQueue(period(req)));
+  });
+
   router.get('/ai/adoption', async (req, res) => {
     res.json(await client.getAiAdoption(period(req)));
   });
@@ -140,6 +152,10 @@ export async function createRouter({
     ]);
     const body: AiCostAndReturn = { cost, return: returns };
     res.json(body);
+  });
+
+  router.get('/ai/leaderboard', async (req, res) => {
+    res.json(await client.getAiLeaderboard(period(req)));
   });
 
   router.get('/collaboration', async (req, res) => {
@@ -170,12 +186,22 @@ export async function createRouter({
     res.json(await client.getSprintReport());
   });
 
+  router.get('/sprints/tickets', async (req, res) => {
+    res.json(
+      await client.getTicketSplit(period(req), teamHash(req.query.team)),
+    );
+  });
+
   router.get('/hours', async (_req, res) => {
     res.json(await client.getHoursInvestment());
   });
 
   router.get('/kudos', async (req, res) => {
     res.json(await client.getKudos(period(req), teamHash(req.query.team)));
+  });
+
+  router.get('/kudos/flows', async (req, res) => {
+    res.json(await client.getKudosFlows(period(req), teamHash(req.query.team)));
   });
 
   return router;

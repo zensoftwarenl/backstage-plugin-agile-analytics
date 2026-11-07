@@ -766,3 +766,130 @@ export type KudosSummary = {
   /** Kudos per person who got any, most first, without who they are. */
   distribution: number[];
 };
+
+/**
+ * Who gave kudos to whom in a period, as the Sankey diagram of the Kudos page
+ * of Agile Analytics shows it. The messages stay in Agile Analytics.
+ *
+ * @public
+ */
+export type KudosFlows = {
+  flows: {
+    /** The name of who gave the kudos. */
+    from: string;
+    /** The name of who got them. */
+    to: string;
+    kudos: number;
+  }[];
+};
+
+/**
+ * How long CI jobs waited for a runner in a period, per day or week. Waits
+ * are in seconds.
+ *
+ * @public
+ */
+export type CiQueue = {
+  summary?: {
+    jobs?: number;
+    p50?: number | null;
+    p90?: number | null;
+    /** Jobs that waited longer than `threshold_seconds`. */
+    waiting_jobs?: number;
+    wait_seconds?: number | null;
+  };
+  series?: {
+    /** Epoch seconds. */
+    start: number;
+    p50?: number | null;
+    p90?: number | null;
+    waiting_jobs?: number;
+    jobs?: number;
+  }[];
+  threshold_seconds?: number;
+};
+
+/**
+ * People ranked by the AI-assisted work they merged in a period. Their merge
+ * requests stay in Agile Analytics.
+ *
+ * @public
+ */
+export type AiLeaderboard = {
+  enabled?: boolean;
+  people?: {
+    rank: number;
+    name: string;
+    ai_assisted?: number;
+    merge_requests?: number;
+    /** Fraction of their merged work that was AI assisted. */
+    share?: number | null;
+    commits?: number;
+    ai_commits?: number;
+    main_tool?: string | null;
+    /** Merges so much AI work that reviewers can hardly keep up. */
+    vampire?: boolean;
+  }[];
+};
+
+/**
+ * Tickets done in a period split into features and other work, by count and
+ * by hours booked, as the Sprint Insights pies of Agile Analytics.
+ *
+ * @public
+ */
+export type TicketSplit = {
+  features: number;
+  notFeatures: number;
+  featureHours: number;
+  notFeatureHours: number;
+  /** More tickets than were counted. */
+  truncated: boolean;
+};
+
+/**
+ * A team's engineering health score and its thirds.
+ *
+ * @public
+ */
+export type TeamScores = {
+  total: number | null;
+  pillars: Partial<Record<HealthPillarId, number | null>>;
+};
+
+/**
+ * Every team's health over a period next to the period before, to compare
+ * the teams.
+ *
+ * @public
+ */
+export type TeamComparisonRow = TeamScores & {
+  team: { hash: string; name: string; members?: number };
+  previous: TeamScores | null;
+};
+
+/**
+ * An actionable insight to follow up, as the Insights page of Agile
+ * Analytics lists it.
+ *
+ * @public
+ */
+export type Insight = {
+  id: number;
+  /** The health area it is about, e.g. `delivery`. */
+  area: string;
+  priority: 'must' | 'could';
+  status: 'new' | 'in_progress' | 'done' | 'dismissed';
+  text?: { en?: string; nl?: string };
+  /** ISO date of the last report that found it. */
+  last_seen_at: string;
+  in_latest_report?: boolean;
+  team_hash?: string | null;
+  jira_issue?: {
+    key?: string | null;
+    url?: string | null;
+    status?: string | null;
+    done?: boolean;
+    summary?: string | null;
+  } | null;
+};

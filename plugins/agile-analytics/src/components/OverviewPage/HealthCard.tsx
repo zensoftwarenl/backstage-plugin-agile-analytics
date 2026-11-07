@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   Alert,
   Card,
@@ -11,6 +12,7 @@ import {
 } from '@backstage/ui';
 import type {
   HealthMetric,
+  HealthPillarId,
   HealthReport,
 } from '@zensoftwarenl/backstage-plugin-agile-analytics-common';
 import {
@@ -26,6 +28,7 @@ import {
   totalScore,
 } from '../../health';
 import { areaUrl, overviewUrl } from '../../links';
+import { HealthRing, PILLAR_COLORS } from '../HealthRing';
 import { ScoreBar } from '../ScoreBar';
 
 const external = { target: '_blank', rel: 'noopener noreferrer' } as const;
@@ -102,12 +105,36 @@ const AreaRow = ({ metric }: { metric: HealthMetric }) => {
   );
 };
 
-const PillarColumn = ({ pillar }: { pillar: Pillar }) => (
-  <Flex direction="column" gap="3" aria-label={`${pillar.name} areas`}>
+const PillarColumn = ({
+  pillar,
+  faded,
+}: {
+  pillar: Pillar;
+  /** Another third is picked on the ring. */
+  faded: boolean;
+}) => (
+  <Flex
+    direction="column"
+    gap="3"
+    aria-label={`${pillar.name} areas`}
+    data-pillar={pillar.id}
+    style={{ opacity: faded ? 0.45 : 1, transition: 'opacity 200ms' }}
+  >
     <Flex justify="between" align="center">
-      <Text variant="title-x-small" as="h3" title={pillar.description}>
-        {pillar.name}
-      </Text>
+      <Flex align="center" gap="2">
+        <span
+          aria-hidden
+          style={{
+            width: 10,
+            height: 10,
+            borderRadius: '50%',
+            background: PILLAR_COLORS[pillar.id],
+          }}
+        />
+        <Text variant="title-x-small" as="h3" title={pillar.description}>
+          {pillar.name}
+        </Text>
+      </Flex>
       <Text
         weight="bold"
         color={pillar.score === null ? 'secondary' : scoreTone(pillar.score)}
@@ -139,6 +166,7 @@ export const HealthCard = ({
   loading,
   error,
 }: HealthCardProps) => {
+  const [active, setActive] = useState<HealthPillarId | null>(null);
   if (loading) {
     return <Skeleton width="100%" height={320} />;
   }
@@ -174,36 +202,34 @@ export const HealthCard = ({
               areas that have data.
             </Text>
           </Flex>
-          <Flex direction="column" align="end" gap="1">
-            <Text
-              variant="title-large"
-              weight="bold"
-              color={total === null ? 'secondary' : scoreTone(total)}
-              aria-label={
-                total === null
-                  ? 'No health score yet'
-                  : `Engineering health score ${total} out of 100`
-              }
-            >
-              {total ?? '–'}
+          {attention.total ? (
+            <Text variant="body-small" color="secondary">
+              {attention.count
+                ? `${attention.count} of ${attention.total} areas need attention`
+                : 'All areas on track'}
             </Text>
-            {attention.total ? (
-              <Text variant="body-small" color="secondary">
-                {attention.count
-                  ? `${attention.count} of ${attention.total} areas need attention`
-                  : 'All areas on track'}
-              </Text>
-            ) : null}
-          </Flex>
+          ) : null}
         </Flex>
       </CardHeader>
       <CardBody>
         {metrics.length ? (
-          <Grid.Root columns={{ initial: '1', md: '3' }} gap="6">
-            {pillars.map(pillar => (
-              <PillarColumn key={pillar.id} pillar={pillar} />
-            ))}
-          </Grid.Root>
+          <Flex direction="column" gap="6">
+            <HealthRing
+              total={total}
+              pillars={pillars}
+              active={active}
+              onSelect={setActive}
+            />
+            <Grid.Root columns={{ initial: '1', md: '3' }} gap="6">
+              {pillars.map(pillar => (
+                <PillarColumn
+                  key={pillar.id}
+                  pillar={pillar}
+                  faded={!!active && active !== pillar.id}
+                />
+              ))}
+            </Grid.Root>
+          </Flex>
         ) : (
           <Text color="secondary">
             No health report yet. Agile Analytics writes one every night once

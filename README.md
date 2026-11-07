@@ -2,8 +2,11 @@
 
 Bring [Agile Analytics](https://www.agileanalytics.cloud) into your own
 Backstage: engineering health, DORA metrics, SLOs and error budgets, AI
-adoption, collaboration, sprints and trends, for the whole organisation or a
+adoption, collaboration, kudos, sprints and trends, for the whole organisation or a
 single team, plus cards on your catalog's entity pages.
+
+See what it looks like at
+[agileanalytics.cloud/backstage](https://www.agileanalytics.cloud/backstage).
 
 ![The Agile Analytics overview in Backstage](docs/screenshots/overview.jpg)
 
@@ -29,19 +32,28 @@ single team, plus cards on your catalog's entity pages.
 A page at `/agile-analytics` with a tab per area. The team and period are
 kept in the URL, so every view can be linked to.
 
-- **Overview**: the engineering health score with its DevEx, OpsEx and
-  AgileEx parts, the latest DORA metrics and recent signals.
+- **Overview**: the engineering health score in a ring of its DevEx, OpsEx
+  and AgileEx parts, the **insights** to follow up (open, done or dismissed,
+  with their Jira issue), a **team comparison** of every team's scores
+  against the period before, the latest DORA metrics and recent signals.
 - **DORA**: deployment frequency, lead time for changes, time to restore and
-  change failure rate against the DORA benchmarks, per day, repository and
-  team, and the deployments that needed a fix.
-- **Error budgets**: every SLO, lowest error budget first, with the budget
-  over the period and per week.
-- **AI adoption**: how much merged work AI helped with, per repository and
-  tool, and how it affects speed, quality and cost.
+  change failure rate against the DORA benchmarks, with every change and
+  failed deployment over time, how long CI jobs waited for a runner, per
+  repository and team, and the deployments that needed a fix.
+- **Error budgets**: the error budget of every SLO over the period with the
+  production deployments marked, good and bad events per SLO, and every SLO,
+  lowest error budget first, with the budget per week.
+- **AI adoption**: how much merged work AI helped with, per day or week,
+  repository and tool, against deployment frequency, lead time and change
+  failure rate, an AI leaderboard, and how it affects speed, quality and
+  cost.
 - **Collaboration**: code review flow, repository ownership, bus factors and
-  how widely kudos are shared.
-- **Sprints & hours**: sprint predictability, work in progress and hours
-  booked per project.
+  a graph of who works on which repositories.
+- **Kudos**: how widely kudos are shared, and who thanked whom, as a Sankey
+  diagram. The kudos messages stay in Agile Analytics.
+- **Sprints & hours**: tickets done and hours booked on features against
+  other work, sprint predictability, work in progress and hours booked per
+  project.
 - **Trends**: DORA and AI adoption per week over 13, 26 or 52 weeks.
 
 Three entity cards:
@@ -203,8 +215,8 @@ warning at startup so demo mode can't go unnoticed in production.
 3. Move your app to the new frontend system. Then remove the
    `<Route path="/agile-analytics" element={<AgileAnalyticsPage />} />`
    route and the sidebar item, because the page comes with the plugin.
-4. The Highcharts-based pages, the kudos page and the stock pages are gone.
-   Kudos show as counts on the Collaboration tab.
+4. The Highcharts-based pages and the stock pages are gone. Kudos have
+   their own tab again.
 
 ## Development
 

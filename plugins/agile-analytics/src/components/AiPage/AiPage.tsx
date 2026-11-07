@@ -8,6 +8,12 @@ import {
   Link,
   Text,
 } from '@backstage/ui';
+import { useState } from 'react';
+import {
+  TREND_DAYS,
+  type AiLeaderboard,
+  type Trends,
+} from '@zensoftwarenl/backstage-plugin-agile-analytics-common';
 import type {
   AiAdoption,
   AiCostAndReturn,
@@ -23,6 +29,7 @@ import {
   aiTools,
   describeVerdict,
   recentAiMergeRequests,
+  aiPerBucket,
 } from '../../ai';
 import {
   formatDate,
@@ -35,7 +42,7 @@ import {
 import { useAgileAnalytics } from '../../hooks';
 import { areaUrl } from '../../links';
 import { scopedPath, useScope } from '../../scope';
-import { CompareBars } from '../charts';
+import { BarChart, CompareBars, Switch } from '../charts';
 import { KpiTile } from '../KpiTile';
 import { LoadState } from '../LoadState';
 import { ScopeBar } from '../ScopeBar';
@@ -44,6 +51,7 @@ import { SimpleTable } from '../SimpleTable';
 const external = { target: '_blank', rel: 'noopener noreferrer' } as const;
 const MAX_REPOSITORIES = 15;
 const MAX_RECENT = 8;
+const MAX_LEADERBOARD = 15;
 
 const VERDICTS: { key: keyof AiDelivery['metrics']; label: string }[] = [
   { key: 'time_to_first_approval', label: 'Time to first approval' },
@@ -90,7 +98,71 @@ const VerdictRow = ({
   );
 };
 
-const AdoptionSection = ({ adoption }: { adoption: AiAdoption }) => {
+/** The AI colour of Agile Analytics, for AI assisted work. */
+const AI_COLOR = '#8e6bd6';
+
+const AdoptionOverTime = ({
+  adoption,
+  days,
+}: {
+  adoption: AiAdoption;
+  days: number;
+}) => {
+  const buckets = aiPerBucket(adoption.merge_requests, days);
+  if (!buckets.some(b => b.aiAssisted + b.notAiAssisted + b.unattributed)) {
+    return null;
+  }
+  const weekly = days > 31;
+  return (
+    <Card>
+      <CardHeader>
+        <Text variant="title-small" as="h2">
+          AI assisted work per {weekly ? 'week' : 'day'}
+        </Text>
+        <Text variant="body-small" color="secondary">
+          Merged work by the {weekly ? 'week' : 'day'} it was merged, and
+          whether AI helped with it
+        </Text>
+      </CardHeader>
+      <CardBody>
+        <BarChart
+          title={`Merged work per ${
+            weekly ? 'week' : 'day'
+          } over the last ${days} days, by whether AI helped`}
+          bars={buckets.map(bucket => ({
+            label: formatDate(bucket.start / 1000),
+            values: [
+              bucket.aiAssisted,
+              bucket.notAiAssisted,
+              bucket.unattributed,
+            ],
+          }))}
+          series={[
+            { label: 'AI assisted', tone: 'info', color: AI_COLOR },
+            {
+              label: 'Not AI assisted',
+              tone: 'info',
+              color: 'var(--bui-fg-secondary)',
+            },
+            {
+              label: 'No AI signal',
+              tone: 'info',
+              color: 'var(--bui-bg-neutral-2)',
+            },
+          ]}
+        />
+      </CardBody>
+    </Card>
+  );
+};
+
+const AdoptionSection = ({
+  adoption,
+  days,
+}: {
+  adoption: AiAdoption;
+  days: number;
+}) => {
   const tools = aiTools(adoption);
   const repositories = aiRepositories(adoption.merge_requests).slice(
     0,
@@ -130,6 +202,8 @@ const AdoptionSection = ({ adoption }: { adoption: AiAdoption }) => {
           )} of ${formatNumber(adoption.commits?.total)} commits`}
         />
       </Grid.Root>
+
+      <AdoptionOverTime adoption={adoption} days={days} />
 
       <Grid.Root columns={{ initial: '1', md: '3' }} gap="4">
         <Grid.Item colSpan={{ initial: '1', md: '2' }}>
@@ -419,6 +493,194 @@ const CostSection = ({ costs }: { costs: AiCostAndReturn }) => {
 };
 
 /** How much AI helps with the work, and what it does to speed, quality and cost. */
+type DoraLine =
+  | 'deployment_frequency'
+  | 'lead_time_for_changes'
+  | 'change_failure_rate';
+
+const DORA_LINES: {
+  value: DoraLine;
+  label: string;
+  format: (value: number) => string;
+}[] = [
+  {
+    value: 'deployment_frequency',
+    label: 'Deployment frequency',
+    format: v => `${formatNumber(v, 1)}/day`,
+  },
+  {
+    value: 'lead_time_for_changes',
+    label: 'Lead time for changes',
+    format: v => formatDuration(v),
+  },
+  {
+    value: 'change_failure_rate',
+    label: 'Change failure rate',
+    format: v => formatShare(v),
+  },
+];
+
+/**
+ * Merged work per week, AI assisted or not, with a DORA metric over it, as
+ * the AI and DORA panel of Agile Analytics: does delivery change as AI
+ * adoption grows?
+ */
+const AiDoraCard = () => {
+  const [metric, setMetric] = useState<DoraLine>('lead_time_for_changes');
+  const trends = useAgileAnalytics<Trends | null>(
+    `trends?days=${TREND_DAYS[0]}`,
+  );
+  const chosen = DORA_LINES.find(l => l.value === metric)!;
+  const buckets = trends.value?.buckets ?? [];
+  return (
+    <Card>
+      <CardHeader>
+        <Flex
+          justify="between"
+          align="start"
+          gap="3"
+          style={{ flexWrap: 'wrap' }}
+        >
+          <Flex direction="column" gap="1">
+            <Text variant="title-small" as="h2">
+              AI and DORA over time
+            </Text>
+            <Text variant="body-small" color="secondary">
+              Merged work per {trends.value?.bucket ?? 'week'} over the last{' '}
+              {Math.round(TREND_DAYS[0] / 7)} weeks, with the{' '}
+              {chosen.label.toLowerCase()} as a line.
+            </Text>
+          </Flex>
+          <Switch
+            label="DORA metric"
+            options={DORA_LINES}
+            value={metric}
+            onChange={setMetric}
+          />
+        </Flex>
+      </CardHeader>
+      <CardBody>
+        <LoadState
+          loading={trends.loading}
+          error={trends.error}
+          what="the trends"
+          height={180}
+          isEmpty={!buckets.length}
+          empty="No merged work in this period."
+        >
+          {() => (
+            <BarChart
+              title={`Merged work per ${
+                trends.value!.bucket
+              }, AI assisted or not, with the ${chosen.label.toLowerCase()}`}
+              bars={buckets.map(b => ({
+                label: formatDate(b.start),
+                values: [b.ai_assisted, b.not_ai_assisted, b.unattributed],
+              }))}
+              series={[
+                { label: 'AI assisted', tone: 'info', color: AI_COLOR },
+                {
+                  label: 'Not AI assisted',
+                  tone: 'info',
+                  color: 'var(--bui-fg-secondary)',
+                },
+                {
+                  label: 'No AI signal',
+                  tone: 'info',
+                  color: 'var(--bui-bg-neutral-2)',
+                },
+              ]}
+              line={{
+                label: chosen.label,
+                color: 'var(--bui-fg-warning)',
+                values: buckets.map(b => b[metric] ?? null),
+                format: chosen.format,
+              }}
+              height={180}
+            />
+          )}
+        </LoadState>
+      </CardBody>
+    </Card>
+  );
+};
+
+type LeaderboardPerson = NonNullable<AiLeaderboard['people']>[number];
+
+/** Who merged the most AI-assisted work, as the AI leaderboard of Agile Analytics. */
+const AiLeaderboardCard = ({ days }: { days: number }) => {
+  const leaderboard = useAgileAnalytics<AiLeaderboard | null>(
+    scopedPath('ai/leaderboard', { days }),
+  );
+  const people = leaderboard.value?.people ?? [];
+  return (
+    <Card>
+      <CardHeader>
+        <Text variant="title-small" as="h2">
+          AI leaderboard
+        </Text>
+        <Text variant="body-small" color="secondary">
+          Who merged the most AI-assisted work in the last {days} days. A
+          vampire merges so much AI work that reviewers can hardly keep up.
+        </Text>
+      </CardHeader>
+      <CardBody>
+        <LoadState
+          loading={leaderboard.loading}
+          error={leaderboard.error}
+          what="the AI leaderboard"
+          isEmpty={leaderboard.value?.enabled === false || !people.length}
+          empty={
+            leaderboard.value?.enabled === false
+              ? 'The AI leaderboard is switched off in the Agile Analytics settings.'
+              : 'Nobody merged AI-assisted work in this period.'
+          }
+        >
+          {() => (
+            <SimpleTable<LeaderboardPerson>
+              label="People ranked by AI-assisted merged work"
+              rows={people.slice(0, MAX_LEADERBOARD)}
+              rowKey={p => `${p.rank}-${p.name}`}
+              columns={[
+                { key: 'rank', label: '#', render: p => p.rank },
+                {
+                  key: 'name',
+                  label: 'Name',
+                  render: p => (p.vampire ? `${p.name} 🧛` : p.name),
+                },
+                {
+                  key: 'ai',
+                  label: 'AI assisted',
+                  align: 'right',
+                  render: p =>
+                    `${p.ai_assisted ?? 0} of ${p.merge_requests ?? 0}`,
+                },
+                {
+                  key: 'share',
+                  label: 'Share',
+                  align: 'right',
+                  render: p => formatShare(p.share ?? null),
+                },
+                {
+                  key: 'commits',
+                  label: 'AI commits',
+                  align: 'right',
+                  render: p => `${p.ai_commits ?? 0} of ${p.commits ?? 0}`,
+                },
+                {
+                  key: 'tool',
+                  label: 'Main tool',
+                  render: p => p.main_tool ?? '–',
+                },
+              ]}
+            />
+          )}
+        </LoadState>
+      </CardBody>
+    </Card>
+  );
+};
+
 export const AiPage = () => {
   const { days } = useScope();
   const adoption = useAgileAnalytics<AiAdoption | null>(
@@ -457,8 +719,10 @@ export const AiPage = () => {
             </>
           }
         >
-          {() => <AdoptionSection adoption={adoption.value!} />}
+          {() => <AdoptionSection adoption={adoption.value!} days={days} />}
         </LoadState>
+        <AiDoraCard />
+        <AiLeaderboardCard days={days} />
         <LoadState
           loading={delivery.loading || quality.loading}
           error={delivery.error ?? quality.error}
