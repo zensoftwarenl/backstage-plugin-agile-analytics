@@ -20,6 +20,7 @@ single team, plus cards on your catalog's entity pages.
   [new backend system](https://backstage.io/docs/backend-system/). Version
   2.x does not support the legacy frontend system (`createApp` from
   `@backstage/app-defaults`). Use 0.2.x there, or migrate your app first.
+- Node.js 22 or 24, like Backstage 1.56 itself.
 - An Agile Analytics organisation and an API key for it. You don't have one
   yet? Try the plugin in [demo mode](#demo-mode) first.
 
