@@ -1,16 +1,10 @@
 {
+  "extends": "@backstage/cli/config/tsconfig.json",
+  "include": ["plugins/*/src", "plugins/*/config.d.ts", "plugins/*/dev"],
+  "exclude": ["node_modules"],
   "compilerOptions": {
-    /* Language and Environment */
-    "target": "es2016",
-    "module": "esnext",
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true, // Recommended with this flag
-    "jsx": "react", // Use "react-jsx" if on React 18
-    "moduleResolution": "node",
-    "strict": true,
-    "declaration": true,
-    "outDir": "./dist-types",
-    "skipLibCheck": true /* Skip type checking all .d.ts files. */
-  },
-  "include": ["src/**/*.ts", "src/**/*.tsx"]
+    "outDir": "dist-types",
+    "rootDir": ".",
+    "jsx": "react-jsx"
+  }
 }

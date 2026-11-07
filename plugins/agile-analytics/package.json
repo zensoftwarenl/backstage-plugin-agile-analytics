@@ -1,0 +1,83 @@
+{
+  "name": "@zensoftwarenl/backstage-plugin-agile-analytics",
+  "version": "2.0.0",
+  "description": "Agile Analytics in Backstage: engineering health, DORA, error budgets, AI adoption, collaboration, sprints and trends, plus entity cards",
+  "license": "Apache-2.0",
+  "author": "ZEN Software <info@zensoftware.nl>",
+  "homepage": "https://github.com/zensoftwarenl/backstage-plugin-agile-analytics#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zensoftwarenl/backstage-plugin-agile-analytics.git",
+    "directory": "plugins/agile-analytics"
+  },
+  "bugs": {
+    "url": "https://github.com/zensoftwarenl/backstage-plugin-agile-analytics/issues"
+  },
+  "keywords": [
+    "backstage",
+    "backstage-plugin",
+    "agile-analytics",
+    "dora",
+    "slo",
+    "error-budget",
+    "engineering-metrics"
+  ],
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "backstage": {
+    "role": "frontend-plugin",
+    "pluginId": "agile-analytics",
+    "pluginPackages": [
+      "@zensoftwarenl/backstage-plugin-agile-analytics",
+      "@zensoftwarenl/backstage-plugin-agile-analytics-backend",
+      "@zensoftwarenl/backstage-plugin-agile-analytics-common"
+    ]
+  },
+  "sideEffects": false,
+  "scripts": {
+    "start": "backstage-cli package start",
+    "build": "backstage-cli package build",
+    "lint": "backstage-cli package lint",
+    "test": "backstage-cli package test",
+    "clean": "backstage-cli package clean",
+    "prepack": "backstage-cli package prepack",
+    "postpack": "backstage-cli package postpack"
+  },
+  "dependencies": {
+    "@backstage/catalog-model": "^1.10.2",
+    "@backstage/errors": "^1.3.2",
+    "@backstage/frontend-plugin-api": "^0.18.2",
+    "@backstage/plugin-catalog-react": "^3.3.0",
+    "@backstage/ui": "^0.19.0",
+    "@remixicon/react": ">=4.6.0 <4.9.0",
+    "@zensoftwarenl/backstage-plugin-agile-analytics-common": "^2.0.0",
+    "react-use": "^17.2.4"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-router-dom": "^6.30.2"
+  },
+  "devDependencies": {
+    "@backstage/cli": "^0.36.7",
+    "@backstage/frontend-defaults": "^0.5.7",
+    "@backstage/frontend-dev-utils": "^0.1.7",
+    "@backstage/frontend-test-utils": "^0.6.5",
+    "@testing-library/jest-dom": "^6.0.0",
+    "@testing-library/react": "^14.0.0",
+    "@testing-library/user-event": "^14.0.0",
+    "@types/react": "^18",
+    "msw": "^2.0.0",
+    "react": "^18.0.2",
+    "react-dom": "^18.0.2",
+    "react-router-dom": "^6.30.2"
+  },
+  "files": [
+    "dist",
+    "config.d.ts"
+  ],
+  "configSchema": "config.d.ts"
+}

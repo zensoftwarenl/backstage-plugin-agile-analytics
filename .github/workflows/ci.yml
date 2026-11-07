@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Backstage 1.56 tooling needs Node 22 or later
+        node-version: [22.x, 24.x]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: yarn
+
+      - run: yarn install --frozen-lockfile
+
+      - name: Type check
+        run: yarn tsc
+
+      - name: Lint
+        run: yarn lint:all
+
+      - name: Formatting
+        run: yarn prettier:check
+
+      - name: No ZEN-internal names in shipped code
+        run: yarn check:zen
+
+      - name: Test
+        run: yarn test:all
+
+      - name: Build
+        run: yarn build
+
+      - name: Package contents
+        run: yarn pack:check

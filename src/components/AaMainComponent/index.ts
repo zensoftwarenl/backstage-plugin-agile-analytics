@@ -1,1 +1,0 @@
-export { AaMainComponent } from './AaMainComponent';

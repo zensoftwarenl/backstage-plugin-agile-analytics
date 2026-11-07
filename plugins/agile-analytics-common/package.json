@@ -1,0 +1,57 @@
+{
+  "name": "@zensoftwarenl/backstage-plugin-agile-analytics-common",
+  "version": "2.0.0",
+  "description": "Types shared by the Agile Analytics Backstage frontend and backend plugins",
+  "license": "Apache-2.0",
+  "author": "ZEN Software <info@zensoftware.nl>",
+  "homepage": "https://github.com/zensoftwarenl/backstage-plugin-agile-analytics#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zensoftwarenl/backstage-plugin-agile-analytics.git",
+    "directory": "plugins/agile-analytics-common"
+  },
+  "bugs": {
+    "url": "https://github.com/zensoftwarenl/backstage-plugin-agile-analytics/issues"
+  },
+  "keywords": [
+    "backstage",
+    "backstage-plugin",
+    "agile-analytics",
+    "dora",
+    "slo",
+    "error-budget",
+    "engineering-metrics"
+  ],
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "publishConfig": {
+    "access": "public",
+    "main": "dist/index.cjs.js",
+    "module": "dist/index.esm.js",
+    "types": "dist/index.d.ts"
+  },
+  "backstage": {
+    "role": "common-library",
+    "pluginId": "agile-analytics",
+    "pluginPackages": [
+      "@zensoftwarenl/backstage-plugin-agile-analytics",
+      "@zensoftwarenl/backstage-plugin-agile-analytics-backend",
+      "@zensoftwarenl/backstage-plugin-agile-analytics-common"
+    ]
+  },
+  "sideEffects": false,
+  "scripts": {
+    "build": "backstage-cli package build",
+    "lint": "backstage-cli package lint",
+    "test": "backstage-cli package test",
+    "clean": "backstage-cli package clean",
+    "prepack": "backstage-cli package prepack",
+    "postpack": "backstage-cli package postpack"
+  },
+  "devDependencies": {
+    "@backstage/cli": "^0.36.7"
+  },
+  "files": [
+    "dist"
+  ]
+}

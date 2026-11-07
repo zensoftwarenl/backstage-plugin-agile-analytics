@@ -1,0 +1,21 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: backstage-plugin-agile-analytics
+  title: Agile Analytics Backstage plugin
+  description: Agile Analytics in Backstage, published to npm as @zensoftwarenl/backstage-plugin-agile-analytics(-backend, -common)
+  annotations:
+    github.com/project-slug: zensoftwarenl/backstage-plugin-agile-analytics
+    backstage.io/source-location: url:https://github.com/zensoftwarenl/backstage-plugin-agile-analytics/
+  links:
+    - url: https://www.npmjs.com/package/@zensoftwarenl/backstage-plugin-agile-analytics
+      title: npm
+    - url: https://www.agileanalytics.cloud
+      title: Agile Analytics
+  tags:
+    - backstage-plugin
+    - typescript
+spec:
+  type: library
+  lifecycle: production
+  owner: group:agile-analytics

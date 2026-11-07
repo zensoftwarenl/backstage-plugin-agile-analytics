@@ -1,0 +1,20 @@
+# Config for working on the plugins with `yarn start` in plugins/*.
+# Demo mode serves made-up data. For real data, set demo to false in an
+# app-config.local.yaml (git-ignored) and export AGILE_ANALYTICS_ORG_HASH and
+# AGILE_ANALYTICS_API_KEY.
+app:
+  baseUrl: http://localhost:3000
+backend:
+  baseUrl: http://localhost:7007
+  listen:
+    port: 7007
+  cors:
+    origin: http://localhost:3000
+  database:
+    client: better-sqlite3
+    connection: ':memory:'
+
+agileAnalytics:
+  demo: true
+  orgHash: ${AGILE_ANALYTICS_ORG_HASH:-}
+  apiKey: ${AGILE_ANALYTICS_API_KEY:-}
