@@ -56,6 +56,12 @@ kept in the URL, so every view can be linked to.
   project.
 - **Trends**: DORA and AI adoption per week over 13, 26 or 52 weeks.
 
+| DORA                                                 | Error budgets                                            |
+| ---------------------------------------------------- | -------------------------------------------------------- |
+| ![DORA tab](docs/screenshots/dora.jpg)               | ![Error budgets tab](docs/screenshots/error-budgets.jpg) |
+| **AI adoption**                                      | **Kudos**                                                |
+| ![AI adoption tab](docs/screenshots/ai-adoption.jpg) | ![Kudos tab](docs/screenshots/kudos.jpg)                 |
+
 Three entity cards:
 
 - **Error budget**: the SLOs of one service, on entities with the
@@ -65,9 +71,7 @@ Three entity cards:
 - **Delivery**: the DORA metrics, ownership and AI adoption of one
   repository, on entities linked to a repository.
 
-| DORA                                   | Error budgets                                            | AI adoption                                          |
-| -------------------------------------- | -------------------------------------------------------- | ---------------------------------------------------- |
-| ![DORA tab](docs/screenshots/dora.jpg) | ![Error budgets tab](docs/screenshots/error-budgets.jpg) | ![AI adoption tab](docs/screenshots/ai-adoption.jpg) |
+![The Error budget and Delivery cards on a component page](docs/screenshots/delivery-card.jpg)
 
 ## Install
 
