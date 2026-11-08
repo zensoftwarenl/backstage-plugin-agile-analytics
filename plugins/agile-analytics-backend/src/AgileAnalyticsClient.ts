@@ -8,9 +8,11 @@ import type { JsonValue } from '@backstage/types';
 import type {
   AiAdoption,
   AiCost,
+  AiLeaderboard,
   AiDelivery,
   AiQuality,
   AiReturn,
+  CiQueue,
   Collaboration,
   Deployment,
   DoraOverview,
@@ -18,6 +20,8 @@ import type {
   FailedDeployment,
   HealthReport,
   HoursInvestment,
+  Insight,
+  KudosFlows,
   KudosSummary,
   LeadTime,
   Organisation,
@@ -27,12 +31,17 @@ import type {
   SloReport,
   SprintReport,
   Team,
+  TeamComparisonRow,
+  TicketSplit,
   Trends,
 } from '@zensoftwarenl/backstage-plugin-agile-analytics-common';
 import { weekBoundaries } from './period';
 
 const DEFAULT_BASE_URL = 'https://api.prod.agileanalytics.cloud';
 const DEFAULT_CACHE_TTL_MINUTES = 15;
+// Sprint Insights tickets are read in pages, up to this many
+const TICKET_PAGE_SIZE = 500;
+const TICKET_PAGES = 10;
 
 type Query = Record<string, string | number | undefined>;
 
@@ -107,6 +116,16 @@ export class AgileAnalyticsClient {
 
   getTeams(): Promise<Team[]> {
     return this.get('teams/');
+  }
+
+  /** The actionable insights to follow up, open and closed. */
+  async getInsights(): Promise<Insight[]> {
+    const body = await this.get<{ insights?: Insight[] } | null>(
+      'insights/',
+      {},
+      slimInsights,
+    );
+    return body?.insights ?? [];
   }
 
   getSignals(): Promise<Signal[]> {
@@ -237,6 +256,105 @@ export class AgileAnalyticsClient {
       people: counts.length,
       distribution: counts.filter(count => count > 0).sort((a, b) => b - a),
     };
+  }
+
+  /**
+   * Who gave kudos to whom in a period, by name, for the organisation or the
+   * members of a team. A hash without a known user keeps its hash.
+   */
+  async getKudosFlows(period: Period, teamHash?: string): Promise<KudosFlows> {
+    const base = teamHash
+      ? `kudos/teams/${encodeURIComponent(teamHash)}/`
+      : 'kudos/';
+    const [flows, users] = await Promise.all([
+      this.get<[string, string, number][] | null>(
+        `${base}sankey_diagram/`,
+        dates(period),
+      ),
+      this.get<{ hash: string; user_name?: string | null }[] | null>(
+        'settings/users/',
+        {},
+        slimUsers,
+      ),
+    ]);
+    const names = new Map(
+      (users ?? []).map(user => [user.hash, user.user_name || user.hash]),
+    );
+    // The API pads some hashes with spaces
+    const name = (hash: string) => names.get(hash.trim()) ?? hash.trim();
+    return {
+      flows: (flows ?? [])
+        .filter(([, , kudos]) => kudos > 0)
+        .map(([from, to, kudos]) => ({
+          from: name(from),
+          to: name(to),
+          kudos,
+        })),
+    };
+  }
+
+  /** How long CI jobs waited for a runner, per day or week. */
+  getCiQueue(period: Period): Promise<CiQueue | null> {
+    return this.get('dora/ci_queue_time/', dates(period), slimCiQueue);
+  }
+
+  /** People ranked by their AI-assisted merged work, without the work. */
+  getAiLeaderboard(period: Period): Promise<AiLeaderboard | null> {
+    return this.get('ai_impact/leaderboard/', dates(period), slimAiLeaderboard);
+  }
+
+  /**
+   * Tickets done in a period, features against other work, for the
+   * organisation or a team. Agile Analytics counts per page of tickets, so
+   * the pages are added up; the tickets themselves stay here.
+   */
+  async getTicketSplit(
+    period: Period,
+    teamHash?: string,
+  ): Promise<TicketSplit> {
+    const path = teamHash ? `si/${encodeURIComponent(teamHash)}/` : 'si/';
+    const split: TicketSplit = {
+      features: 0,
+      notFeatures: 0,
+      featureHours: 0,
+      notFeatureHours: 0,
+      truncated: false,
+    };
+    for (let page = 0; page < TICKET_PAGES; page++) {
+      const body = await this.get<{
+        features?: number;
+        not_features?: number;
+        feature_hours?: number;
+        not_feature_hours?: number;
+        tickets?: number;
+      } | null>(
+        path,
+        {
+          ...dates(period),
+          limit: TICKET_PAGE_SIZE,
+          offset: page * TICKET_PAGE_SIZE,
+        },
+        slimTicketPage,
+      );
+      if (!body) break;
+      split.features += body.features ?? 0;
+      split.notFeatures += body.not_features ?? 0;
+      split.featureHours += body.feature_hours ?? 0;
+      split.notFeatureHours += body.not_feature_hours ?? 0;
+      if ((body.tickets ?? 0) < TICKET_PAGE_SIZE) return split;
+    }
+    split.truncated = true;
+    return split;
+  }
+
+  /** Every team's health over a period, next to the period before. */
+  async getTeamComparison(period: Period): Promise<TeamComparisonRow[]> {
+    const rows = await this.get<TeamComparisonRow[] | null>(
+      'teams/health/',
+      dates(period),
+      slimTeamComparison,
+    );
+    return rows ?? [];
   }
 
   async getErrorBudgets(period: Period, now = Date.now()) {
@@ -413,6 +531,12 @@ function slimLeaderboard(body: any) {
   return pick(body, ['total_kudos', 'team_members_list']);
 }
 
+// Only who is who: users come with their e-mail address and settings
+function slimUsers(body: any) {
+  if (!Array.isArray(body)) return body;
+  return body.map((user: any) => pick(user, ['hash', 'user_name']));
+}
+
 function slimAiDelivery(body: any) {
   if (!body || typeof body !== 'object') return body;
   return pick(body, ['metrics', 'unattributed', 'min_cohort_size']);
@@ -471,5 +595,96 @@ function slimCollaboration(body: any) {
         'focus',
       ]),
     ),
+  };
+}
+
+function slimCiQueue(body: any) {
+  if (!body || typeof body !== 'object') return body;
+  return {
+    ...pick(body, ['threshold_seconds']),
+    ...(body.summary
+      ? {
+          summary: pick(body.summary, [
+            'jobs',
+            'p50',
+            'p90',
+            'waiting_jobs',
+            'wait_seconds',
+          ]),
+        }
+      : {}),
+    series: (body.series ?? []).map((bucket: any) =>
+      pick(bucket, ['start', 'p50', 'p90', 'waiting_jobs', 'jobs']),
+    ),
+  };
+}
+
+// Names and counts; the merge requests behind them carry titles and links
+function slimAiLeaderboard(body: any) {
+  if (!body || typeof body !== 'object') return body;
+  return {
+    ...pick(body, ['enabled']),
+    people: (body.people ?? []).map((person: any) =>
+      pick(person, [
+        'rank',
+        'name',
+        'ai_assisted',
+        'merge_requests',
+        'share',
+        'commits',
+        'ai_commits',
+        'main_tool',
+        'vampire',
+      ]),
+    ),
+  };
+}
+
+// Only the counts of a page of tickets: the tickets carry summaries and
+// assignees
+function slimTicketPage(body: any) {
+  if (!body || typeof body !== 'object') return body;
+  const split = body.time_split ?? {};
+  return {
+    features: body.features ?? 0,
+    not_features: body.not_features ?? 0,
+    feature_hours: split.feature ?? 0,
+    not_feature_hours: split['not feature'] ?? 0,
+    tickets: Array.isArray(body.tickets) ? body.tickets.length : 0,
+  };
+}
+
+function slimTeamComparison(body: any) {
+  if (!Array.isArray(body)) return body;
+  const scores = (report: any) =>
+    report && typeof report === 'object'
+      ? { total: report.total ?? null, pillars: report.pillars ?? {} }
+      : null;
+  return body.map((row: any) => ({
+    team: pick(row.team ?? {}, ['hash', 'name', 'members']),
+    ...scores(row),
+    previous: scores(row.previous),
+  }));
+}
+
+// The insights without their history of who changed what
+function slimInsights(body: any) {
+  if (!body || typeof body !== 'object') return body;
+  return {
+    insights: (body.insights ?? []).map((insight: any) => ({
+      ...pick(insight, [
+        'id',
+        'area',
+        'priority',
+        'status',
+        'text',
+        'last_seen_at',
+        'in_latest_report',
+        'team_hash',
+      ]),
+      jira_issue: insight.jira_issue
+        ? pick(insight.jira_issue, ['key', 'url', 'status', 'done', 'summary'])
+        : null,
+    })),
   };
 }

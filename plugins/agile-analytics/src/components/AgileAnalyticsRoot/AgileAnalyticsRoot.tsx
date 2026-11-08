@@ -17,6 +17,7 @@ import { AiPage } from '../AiPage';
 import { CollaborationPage } from '../CollaborationPage';
 import { DoraPage } from '../DoraPage';
 import { ErrorBudgetsPage } from '../ErrorBudgetsPage';
+import { KudosPage } from '../KudosPage';
 import { OverviewPage } from '../OverviewPage';
 import { SprintsPage } from '../SprintsPage';
 import { TrendsPage } from '../TrendsPage';
@@ -72,6 +73,12 @@ const TABS: Tab[] = [
     label: 'Collaboration',
     element: <CollaborationPage />,
     links: () => [openInAgileAnalytics(areaUrl('collaboration')!)],
+  },
+  {
+    id: 'kudos',
+    label: 'Kudos',
+    element: <KudosPage />,
+    links: () => [openInAgileAnalytics(areaUrl('kudos')!)],
   },
   {
     id: 'sprints',

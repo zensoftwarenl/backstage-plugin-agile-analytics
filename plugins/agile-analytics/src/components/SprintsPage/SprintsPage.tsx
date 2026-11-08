@@ -9,6 +9,7 @@ import {
   Text,
 } from '@backstage/ui';
 import type {
+  TicketSplit,
   FlowItem,
   HoursInvestment,
   SprintReport,
@@ -18,7 +19,9 @@ import { formatNumber } from '../../format';
 import { useAgileAnalytics } from '../../hooks';
 import { areaUrl } from '../../links';
 import { AGE_BUCKETS, recentSprints } from '../../sprints';
-import { BarChart, CompareBars } from '../charts';
+import { scopedPath, useScope } from '../../scope';
+import { BarChart, CompareBars, Donut } from '../charts';
+import { ScopeBar } from '../ScopeBar';
 import { KpiTile } from '../KpiTile';
 import { LoadState } from '../LoadState';
 import { SimpleTable } from '../SimpleTable';
@@ -281,6 +284,91 @@ const HoursCard = () => {
  * Sprint predictability, the flow of work in progress and where hours go:
  * the AgileEx part of the health report.
  */
+const FEATURE_COLOR = '#1fb8d3';
+const OTHER_COLOR = '#f2a33a';
+
+/**
+ * Tickets done in the period, features against other work, by count and by
+ * hours booked, as the Sprint Insights pies of Agile Analytics.
+ */
+const TicketTypesCard = () => {
+  const { team, days: period } = useScope();
+  const split = useAgileAnalytics<TicketSplit>(
+    scopedPath('sprints/tickets', { days: period, team }),
+  );
+  const value = split.value;
+  return (
+    <Card>
+      <CardHeader>
+        <Text variant="title-small" as="h2">
+          Features and other work
+        </Text>
+        <Text variant="body-small" color="secondary">
+          Tickets done in the last {period} days{team ? ' by the team' : ''}, as
+          Sprint Insights labels them.
+          {value?.truncated ? ' Only the first 5,000 tickets are counted.' : ''}
+        </Text>
+      </CardHeader>
+      <CardBody>
+        <LoadState
+          loading={split.loading}
+          error={split.error}
+          what="the ticket types"
+          isEmpty={!value || !(value.features + value.notFeatures)}
+          empty={`No tickets done in the last ${period} days.`}
+        >
+          {() => (
+            <Grid.Root columns={{ initial: '1', md: '2' }} gap="4">
+              <Flex direction="column" gap="2">
+                <Text variant="title-x-small" as="h3">
+                  Tickets
+                </Text>
+                <Donut
+                  title="Tickets done per type"
+                  slices={[
+                    {
+                      label: 'Features',
+                      value: value!.features,
+                      color: FEATURE_COLOR,
+                    },
+                    {
+                      label: 'Other work',
+                      value: value!.notFeatures,
+                      color: OTHER_COLOR,
+                    },
+                  ]}
+                  format={v => formatNumber(v, 0)}
+                />
+              </Flex>
+              <Flex direction="column" gap="2">
+                <Text variant="title-x-small" as="h3">
+                  Hours booked
+                </Text>
+                <Donut
+                  title="Hours booked per type"
+                  slices={[
+                    {
+                      label: 'Features',
+                      value: value!.featureHours,
+                      color: FEATURE_COLOR,
+                    },
+                    {
+                      label: 'Other work',
+                      value: value!.notFeatureHours,
+                      color: OTHER_COLOR,
+                    },
+                  ]}
+                  format={v => `${formatNumber(v, 0)} h`}
+                />
+              </Flex>
+            </Grid.Root>
+          )}
+        </LoadState>
+      </CardBody>
+    </Card>
+  );
+};
+
 export const SprintsPage = () => {
   const report = useAgileAnalytics<SprintReport | null>('sprints');
   const flow = report.value?.flow;
@@ -289,9 +377,8 @@ export const SprintsPage = () => {
   return (
     <Container>
       <Flex direction="column" gap="4" py="4">
-        <Text variant="body-small" color="secondary">
-          From last night's report for the whole organisation.
-        </Text>
+        <ScopeBar note="The team and period apply to the ticket types; the sprint report is last night's, for the whole organisation." />
+        <TicketTypesCard />
         <LoadState
           loading={report.loading}
           error={report.error}
