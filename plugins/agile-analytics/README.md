@@ -2,7 +2,7 @@
 
 The frontend plugin that brings [Agile Analytics](https://www.agileanalytics.cloud)
 into Backstage: a page with engineering health, DORA, error budgets, AI
-adoption, collaboration, sprints and trends, and entity cards for services,
+adoption, collaboration, kudos, sprints and trends, and entity cards for services,
 repositories and teams.
 
 ![The Agile Analytics overview in Backstage](https://raw.githubusercontent.com/zensoftwarenl/backstage-plugin-agile-analytics/main/docs/screenshots/overview.jpg)

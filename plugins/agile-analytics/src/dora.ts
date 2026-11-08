@@ -2,6 +2,7 @@ import type {
   DoraData,
   DoraOverviewMetric,
   FailedDeployment,
+  LeadTime,
 } from '@zensoftwarenl/backstage-plugin-agile-analytics-common';
 import type { Tone } from './health';
 import { mean, median, repositoryName } from './format';
@@ -104,6 +105,13 @@ export type DoraSummary = {
   /** Production and failed deployments per UTC day, oldest first. */
   days: { start: number; deployments: number; failed: number }[];
   repositories: DoraRepository[];
+  /** The changes behind the lead time, in the period. */
+  leadTimes: LeadTime[];
+  /** Every change deployed in the period, whichever of its times is known. */
+  changes: LeadTime[];
+  /** Failed deployments restored in the period, oldest first. */
+  restores: { time: number; hours: number; repository: string }[];
+  period: DoraData['period'];
 };
 
 function inPeriod(timestamp: number | null | undefined, data: DoraData) {
@@ -134,13 +142,23 @@ export function summariseDora(data: DoraData): DoraSummary {
       inPeriod(lt.timestamp, data) &&
       typeof lt.lead_time_for_changes === 'number',
   );
+  const changes = data.leadTimes.filter(
+    lt => ofTeam(lt.repository) && inPeriod(lt.timestamp, data),
+  );
   const failures = data.failures.filter(f => ofTeam(f.repository));
   const failedInPeriod = failures.filter(f => inPeriod(f.timestamp, data));
-  const restoreHours = failures
-    .filter(f => inPeriod(f.restored_at, data))
-    .map(f => f.time_to_restore)
-    .filter((s): s is number => typeof s === 'number')
-    .map(s => s / 3600);
+  const restores = failures
+    .filter(
+      f =>
+        inPeriod(f.restored_at, data) && typeof f.time_to_restore === 'number',
+    )
+    .map(f => ({
+      time: f.restored_at!,
+      hours: f.time_to_restore! / 3600,
+      repository: f.repository,
+    }))
+    .sort((a, b) => a.time - b.time);
+  const restoreHours = restores.map(r => r.hours);
 
   const periodDays = Math.max(
     1,
@@ -215,10 +233,34 @@ export function summariseDora(data: DoraData): DoraSummary {
     ),
     days,
     repositories,
+    leadTimes,
+    changes,
+    restores,
+    period: data.period,
   };
 }
 
 /** A DORA value of the overview report in the unit the bands use. */
 export function overviewValue(metric: DoraOverviewMetric): number | null {
   return typeof metric.value === 'number' ? metric.value : null;
+}
+
+/**
+ * The mean per day of values at times, in epoch seconds, as [epoch
+ * milliseconds at noon, mean]; days without values are left out.
+ */
+export function dailyMeans(
+  values: { time: number; value: number }[],
+): [number, number][] {
+  const days = new Map<number, number[]>();
+  for (const { time, value } of values) {
+    const day = Math.floor(time / DAY) * DAY;
+    days.set(day, [...(days.get(day) ?? []), value]);
+  }
+  return [...days]
+    .sort((a, b) => a[0] - b[0])
+    .map(([day, all]) => [
+      (day + DAY / 2) * 1000,
+      all.reduce((sum, v) => sum + v, 0) / all.length,
+    ]);
 }

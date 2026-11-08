@@ -107,3 +107,46 @@ export function describeVerdict(verdict: AiVerdict | undefined): {
     tone: faster ? 'success' : 'warning',
   };
 }
+
+const DAY_MS = 86_400_000;
+
+export type AiBucket = {
+  /** Epoch milliseconds of the bucket's local midnight. */
+  start: number;
+  aiAssisted: number;
+  notAiAssisted: number;
+  unattributed: number;
+};
+
+/**
+ * Merged work per day, or per week over more than 31 days, split by whether
+ * AI helped, from the first day of the period to today. Quiet days keep their
+ * place, so the bars line up with the calendar.
+ */
+export function aiPerBucket(
+  mergeRequests: AiMergeRequest[] | undefined,
+  days: number,
+  now = Date.now(),
+): AiBucket[] {
+  const size = days > 31 ? 7 : 1;
+  const today = new Date(now);
+  today.setHours(0, 0, 0, 0);
+  const first = today.getTime() - (days - 1) * DAY_MS;
+  const count = Math.ceil(days / size);
+  const buckets: AiBucket[] = Array.from({ length: count }, (_, i) => ({
+    start: first + i * size * DAY_MS,
+    aiAssisted: 0,
+    notAiAssisted: 0,
+    unattributed: 0,
+  }));
+  for (const mr of mergeRequests ?? []) {
+    if (!mr.merged_date) continue;
+    const index = Math.floor((mr.merged_date * 1000 - first) / (size * DAY_MS));
+    const bucket = buckets[index];
+    if (!bucket) continue;
+    if (mr.ai_assisted === true) bucket.aiAssisted += 1;
+    else if (mr.ai_assisted === false) bucket.notAiAssisted += 1;
+    else bucket.unattributed += 1;
+  }
+  return buckets;
+}

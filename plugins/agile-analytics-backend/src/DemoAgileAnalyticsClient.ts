@@ -1,13 +1,20 @@
 // The client comes first and reads the made-up data defined below it; that
 // is safe because its methods only run after the module has loaded.
 /* eslint-disable @typescript-eslint/no-use-before-define */
+import {
+  HEALTH_AREA_PILLARS,
+  type HealthAreaId,
+  type HealthPillarId,
+} from '@zensoftwarenl/backstage-plugin-agile-analytics-common';
 import type {
   AiAdoption,
   AiCost,
+  AiLeaderboard,
   AiDelivery,
   AiMergeRequest,
   AiQuality,
   AiReturn,
+  CiQueue,
   Collaboration,
   Deployment,
   DoraOverview,
@@ -16,6 +23,8 @@ import type {
   HealthMetric,
   HealthReport,
   HoursInvestment,
+  Insight,
+  KudosFlows,
   KudosSummary,
   LeadTime,
   Organisation,
@@ -27,6 +36,9 @@ import type {
   SprintReport,
   SprintResult,
   Team,
+  TeamComparisonRow,
+  TeamScores,
+  TicketSplit,
   TrendBucket,
   Trends,
 } from '@zensoftwarenl/backstage-plugin-agile-analytics-common';
@@ -62,6 +74,111 @@ export class DemoAgileAnalyticsClient implements AgileAnalyticsReader {
 
   async getTeams(): Promise<Team[]> {
     return TEAMS.map(team => ({ team_hash: team.hash, team_name: team.name }));
+  }
+
+  async getInsights(): Promise<Insight[]> {
+    const day = (ago: number) =>
+      new Date((today() - ago * DAY) * 1000).toISOString();
+    const insight = (
+      id: number,
+      area: string,
+      priority: Insight['priority'],
+      status: Insight['status'],
+      en: string,
+      ago: number,
+      extra: Partial<Insight> = {},
+    ): Insight => ({
+      id,
+      area,
+      priority,
+      status,
+      text: { en },
+      last_seen_at: day(ago),
+      in_latest_report: ago === 0,
+      team_hash: null,
+      jira_issue: null,
+      ...extra,
+    });
+    return [
+      insight(
+        1,
+        'reliability',
+        'must',
+        'in_progress',
+        'Message delivery of app-api is over its error budget; look at the deployments of 29 October first.',
+        0,
+        {
+          team_hash: 'apps',
+          jira_issue: {
+            key: 'ACME-412',
+            url: 'https://jira.acme.example/browse/ACME-412',
+            status: 'In Progress',
+            done: false,
+            summary: 'Message delivery error budget',
+          },
+        },
+      ),
+      insight(
+        2,
+        'collaboration',
+        'must',
+        'new',
+        'acme/navigation/legacy-map-compat has nobody active left; agree on a new owner.',
+        0,
+        { team_hash: 'navigation' },
+      ),
+      insight(
+        3,
+        'flow',
+        'could',
+        'new',
+        'Two items have been in progress for over a month; split them or close them.',
+        0,
+        { team_hash: 'platform' },
+      ),
+      insight(
+        4,
+        'delivery',
+        'could',
+        'new',
+        'The CI queue 90th percentile tripled on weekdays; add a runner at peak times.',
+        1,
+      ),
+      insight(
+        5,
+        'kudos',
+        'could',
+        'done',
+        'Thanks go mostly to the same five people; recognise reviewers too.',
+        6,
+        {
+          jira_issue: {
+            key: 'ACME-377',
+            url: 'https://jira.acme.example/browse/ACME-377',
+            status: 'Done',
+            done: true,
+            summary: 'Kudos for reviewers',
+          },
+        },
+      ),
+      insight(
+        6,
+        'ai',
+        'could',
+        'dismissed',
+        'AI-assisted work merges faster but needs more rework in billing-service.',
+        9,
+        { team_hash: 'platform' },
+      ),
+      insight(
+        7,
+        'investment',
+        'must',
+        'new',
+        'A third of the hours went to unplanned work in the last two weeks.',
+        0,
+      ),
+    ];
   }
 
   async getSignals(): Promise<Signal[]> {
@@ -273,6 +390,143 @@ export class DemoAgileAnalyticsClient implements AgileAnalyticsReader {
       people,
       distribution,
     };
+  }
+
+  async getKudosFlows(period: Period, teamHash?: string): Promise<KudosFlows> {
+    const random = seeded(`kudos-flows:${period.start}:${teamHash ?? ''}`);
+    const people = PEOPLE.filter(
+      person => person.active && (!teamHash || person.teams.includes(teamHash)),
+    ).map(person => person.name);
+    const kudos = new Map<string, number>();
+    for (let i = 0; i < people.length * 2; i++) {
+      const from = pick(random, people);
+      const to = pick(random, people);
+      if (from === to) continue;
+      const key = `${from}\u0000${to}`;
+      kudos.set(key, (kudos.get(key) ?? 0) + 1 + Math.floor(random() * 3));
+    }
+    return {
+      flows: [...kudos].map(([key, count]) => {
+        const [from, to] = key.split('\u0000');
+        return { from, to, kudos: count };
+      }),
+    };
+  }
+
+  async getCiQueue(period: Period): Promise<CiQueue> {
+    const random = seeded(`ci-queue:${period.start}`);
+    const weekly = period.end - period.start > 31 * DAY;
+    const step = weekly ? 7 * DAY : DAY;
+    const series = [];
+    for (let start = period.start; start < period.end; start += step) {
+      const quiet = !weekly && isWeekend(start);
+      const jobs = Math.round(
+        (quiet ? 20 : 180) * (weekly ? 6 : 1) * (0.7 + random() * 0.6),
+      );
+      const p50 = 8 + random() * 25;
+      series.push({
+        start,
+        jobs,
+        p50: round(p50),
+        p90: round(p50 * (3 + random() * 4)),
+        waiting_jobs: Math.round(jobs * random() * 0.12),
+      });
+    }
+    const jobs = series.reduce((sum, b) => sum + b.jobs, 0);
+    return {
+      threshold_seconds: 60,
+      summary: {
+        jobs,
+        p50: round(series.reduce((sum, b) => sum + b.p50, 0) / series.length),
+        p90: round(Math.max(...series.map(b => b.p90))),
+        waiting_jobs: series.reduce((sum, b) => sum + b.waiting_jobs, 0),
+        wait_seconds: Math.round(jobs * 22),
+      },
+      series,
+    };
+  }
+
+  async getAiLeaderboard(period: Period): Promise<AiLeaderboard> {
+    const random = seeded(`ai-leaderboard:${period.start}`);
+    const scale = periodScale(period);
+    const tools = ['claude-code', 'copilot', 'cursor'];
+    const people = PEOPLE.filter(person => person.active)
+      .map(person => {
+        const mergeRequests = Math.max(
+          1,
+          Math.round((2 + random() * 14) * scale),
+        );
+        const aiAssisted = Math.round(mergeRequests * random() ** 0.7);
+        const commits = Math.round(mergeRequests * (3 + random() * 4));
+        return {
+          name: person.name,
+          merge_requests: mergeRequests,
+          ai_assisted: aiAssisted,
+          share: aiAssisted / mergeRequests,
+          commits,
+          ai_commits: Math.round(commits * (aiAssisted / mergeRequests)),
+          main_tool: aiAssisted ? pick(random, tools) : null,
+        };
+      })
+      .sort((a, b) => b.ai_assisted - a.ai_assisted || b.share - a.share);
+    return {
+      enabled: true,
+      people: people.map((person, i) => ({
+        ...person,
+        rank: i + 1,
+        vampire: i === 0 && person.ai_assisted > 10 * scale,
+      })),
+    };
+  }
+
+  async getTicketSplit(
+    period: Period,
+    teamHash?: string,
+  ): Promise<TicketSplit> {
+    const random = seeded(`tickets:${period.start}:${teamHash ?? ''}`);
+    const scale = periodScale(period) * (teamHash ? 1 : TEAMS.length);
+    const features = Math.round((9 + random() * 8) * scale);
+    const notFeatures = Math.round((5 + random() * 6) * scale);
+    return {
+      features,
+      notFeatures,
+      featureHours: Math.round(features * (5 + random() * 4)),
+      notFeatureHours: Math.round(notFeatures * (3 + random() * 3)),
+      truncated: false,
+    };
+  }
+
+  async getTeamComparison(period: Period): Promise<TeamComparisonRow[]> {
+    const random = seeded(`teams-health:${period.start}`);
+    const scores = (variant: number, drift: number): TeamScores => {
+      const sums: Partial<Record<HealthPillarId, number[]>> = {};
+      for (const metric of healthMetrics(variant)) {
+        const pillar = HEALTH_AREA_PILLARS[metric.id as HealthAreaId];
+        if (pillar && typeof metric.score === 'number') {
+          (sums[pillar] ??= []).push(metric.score + drift);
+        }
+      }
+      const pillars = Object.fromEntries(
+        Object.entries(sums).map(([pillar, values]) => [
+          pillar,
+          Math.round(values.reduce((a, b) => a + b, 0) / values.length),
+        ]),
+      );
+      const values = Object.values(pillars);
+      return {
+        total: Math.round(values.reduce((a, b) => a + b, 0) / values.length),
+        pillars,
+      };
+    };
+    return TEAMS.map((team, i) => ({
+      team: {
+        hash: team.hash,
+        name: team.name,
+        members: PEOPLE.filter(p => p.teams.includes(team.hash)).length,
+      },
+      ...scores(i + 1, 0),
+      previous: scores(i + 1, Math.round((random() - 0.5) * 14)),
+    }));
   }
 
   async getDoraOverview(): Promise<DoraOverview> {

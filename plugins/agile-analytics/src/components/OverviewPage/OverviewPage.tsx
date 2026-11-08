@@ -10,7 +10,9 @@ import { useAgileAnalytics } from '../../hooks';
 import { useScope } from '../../scope';
 import { DoraSummaryCard } from './DoraSummaryCard';
 import { HealthCard } from './HealthCard';
+import { InsightsCard } from './InsightsCard';
 import { SignalsCard } from './SignalsCard';
+import { TeamComparisonCard } from './TeamComparisonCard';
 
 const ORGANISATION = 'org';
 
@@ -70,6 +72,10 @@ export const OverviewPage = () => {
           loading={health.loading}
           error={health.error}
         />
+        <InsightsCard teamHash={teamHash} />
+        {scope === ORGANISATION && (teams.value?.length ?? 0) > 1 ? (
+          <TeamComparisonCard onSelect={setScope} />
+        ) : null}
         {scope === ORGANISATION ? (
           <DoraSummaryCard doraHref={`${dora.pathname}${search}`} />
         ) : null}
