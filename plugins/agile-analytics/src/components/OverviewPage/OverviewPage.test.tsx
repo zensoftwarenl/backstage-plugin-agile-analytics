@@ -37,7 +37,7 @@ describe('OverviewPage', () => {
     );
 
     expect(
-      await screen.findByLabelText('Engineering health score 64 out of 100'),
+      await screen.findByLabelText(/^Engineering health score 64 out of 100/),
     ).toBeInTheDocument();
     expect(screen.getByText('1 of 2 areas need attention')).toBeInTheDocument();
     expect(screen.getByText('Delivery')).toBeInTheDocument();

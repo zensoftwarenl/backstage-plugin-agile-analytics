@@ -12,7 +12,6 @@ import {
 import {
   COLLABORATION_WINDOWS,
   Collaboration,
-  KudosSummary,
   ReviewMetrics,
   ReviewSummary,
 } from '@zensoftwarenl/backstage-plugin-agile-analytics-common';
@@ -22,7 +21,6 @@ import {
   STATUS_BY_ID,
   describeOwners,
   summariseCollaboration,
-  topFifthShare,
 } from '../../collaboration';
 import {
   formatHours,
@@ -35,6 +33,7 @@ import { areaUrl } from '../../links';
 import { scopedPath, useScope } from '../../scope';
 import { KpiTile } from '../KpiTile';
 import { LoadState } from '../LoadState';
+import { OwnershipGraph } from '../OwnershipGraph';
 import { ScopeBar } from '../ScopeBar';
 import { SimpleTable } from '../SimpleTable';
 
@@ -77,74 +76,6 @@ function approvalTone(withoutApproval: number | null | undefined) {
   if (withoutApproval > 0.05) return 'warning';
   return 'success';
 }
-
-const KudosCard = ({ days, team }: { days: number; team?: string }) => {
-  const kudos = useAgileAnalytics<KudosSummary>(
-    scopedPath('kudos', { days, team }),
-  );
-  const summary = kudos.value;
-  const topShare = summary ? topFifthShare(summary.distribution) : null;
-
-  return (
-    <LoadState
-      loading={kudos.loading}
-      error={kudos.error}
-      what="the kudos"
-      isEmpty={!summary?.total}
-      empty={
-        <>
-          No kudos given in the last {days} days.{' '}
-          <Link href={areaUrl('kudos')!} {...external}>
-            Kudos in Agile Analytics
-          </Link>
-        </>
-      }
-    >
-      {() => (
-        <Card>
-          <CardHeader>
-            <Text variant="title-small" as="h2">
-              Kudos
-            </Text>
-            <Text variant="body-small" color="secondary">
-              How widely thanks were shared in the last {days} days
-              {team ? ', received by the team' : ''}
-            </Text>
-          </CardHeader>
-          <CardBody>
-            <Grid.Root columns={{ initial: '2', md: '4' }} gap="3">
-              <KpiTile label="Kudos" value={formatNumber(summary!.total)} />
-              <KpiTile
-                label="People thanked"
-                value={formatNumber(summary!.receivers)}
-                hint={
-                  summary!.people
-                    ? `${formatShare(
-                        summary!.receivers / summary!.people,
-                      )} of ${formatNumber(summary!.people)} people`
-                    : undefined
-                }
-              />
-              <KpiTile
-                label="People thanking"
-                value={formatNumber(summary!.givers)}
-              />
-              <KpiTile
-                label="Kudos to the most thanked fifth"
-                value={formatShare(topShare)}
-                hint={
-                  topShare === null
-                    ? 'Needs five people thanked'
-                    : 'Lower means thanks are spread more widely'
-                }
-              />
-            </Grid.Root>
-          </CardBody>
-        </Card>
-      )}
-    </LoadState>
-  );
-};
 
 const ReviewCard = ({ days, team }: { days: number; team?: string }) => {
   const reviews = useAgileAnalytics<ReviewSummary | null>(
@@ -276,6 +207,26 @@ const OwnershipSection = ({
           />
         ))}
       </Grid.Root>
+
+      {summary.repositories.length ? (
+        <Card>
+          <CardHeader>
+            <Text variant="title-small" as="h2">
+              Who works on what
+            </Text>
+            <Text variant="body-small" color="secondary">
+              People and the repositories they worked on over the chosen
+              history, what needs attention on top. Point at a name to follow
+              its lines.
+            </Text>
+          </CardHeader>
+          <CardBody>
+            <OwnershipGraph
+              data={{ people: data.people, repositories: summary.repositories }}
+            />
+          </CardBody>
+        </Card>
+      ) : null}
 
       <Card>
         <CardHeader>
@@ -416,7 +367,7 @@ export const CollaborationPage = () => {
   return (
     <Container>
       <Flex direction="column" gap="4" py="4">
-        <ScopeBar note="The period applies to code review and kudos; ownership looks at the chosen history.">
+        <ScopeBar note="The period applies to code review; ownership looks at the chosen history.">
           <Select
             label="Ownership history"
             size="small"
@@ -429,7 +380,6 @@ export const CollaborationPage = () => {
           />
         </ScopeBar>
         <ReviewCard days={days} team={team} />
-        <KudosCard days={days} team={team} />
         <LoadState
           loading={collaboration.loading}
           error={collaboration.error}

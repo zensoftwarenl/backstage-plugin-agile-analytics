@@ -351,7 +351,7 @@ describe('AgileAnalyticsRoot', () => {
   });
 
   it('shows how widely kudos are shared', async () => {
-    await renderAt('/collaboration');
+    await renderAt('/kudos');
 
     expect(
       await screen.findByRole('group', { name: 'People thanked: 5' }),
